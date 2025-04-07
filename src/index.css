@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Asegurarnos que los modales siempre estén por encima de todo */
+.fixed.z-\[9999\] {
+  z-index: 9999 !important;
+}
+
+/* Mejorar la animación de fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+}
+
+.animate-fadeOut {
+  animation: fadeOut 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Pulsate animation for buttons */
+@keyframes pulsate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-pulsate {
+  animation: pulsate 2s ease-in-out infinite;
+}
+
+/* Añadir blur al fondo */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Mejores estilos para modales */
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
