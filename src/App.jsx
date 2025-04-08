@@ -45,26 +45,25 @@ function App() {
 
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={!user ? <Home /> : <Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/mesas" element={<ProtectedRoute><Mesas /></ProtectedRoute>} />
-          <Route path="/pedidos" element={<ProtectedRoute><Pedidos /></ProtectedRoute>} />
-          <Route path="/inventario" element={<ProtectedRoute><Inventario /></ProtectedRoute>} />
-          <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
-          <Route path="/reportes/ventas" element={<ProtectedRoute><Ventas /></ProtectedRoute>} />
-          <Route path="/reportes/productos" element={<ProtectedRoute><Productos /></ProtectedRoute>} />
-          <Route path="/reportes/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
-          <Route path="/configuracion" element={<ProtectedRoute><Configuracion /></ProtectedRoute>} />
-          {/* Ruta 404 - debe estar al final */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/login" element={<Home />} />
+        <Route path="/" element={!user ? <Home /> : <Navigate to="/dashboard" />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/mesas" element={<ProtectedRoute><Mesas /></ProtectedRoute>} />
+        <Route path="/pedidos" element={<ProtectedRoute><Pedidos /></ProtectedRoute>} />
+        <Route path="/inventario" element={<ProtectedRoute><Inventario /></ProtectedRoute>} />
+        <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
+        <Route path="/reportes/ventas" element={<ProtectedRoute><Ventas /></ProtectedRoute>} />
+        <Route path="/reportes/productos" element={<ProtectedRoute><Productos /></ProtectedRoute>} />
+        <Route path="/reportes/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
+        <Route path="/configuracion" element={<ProtectedRoute><Configuracion /></ProtectedRoute>} />
+        {/* Ruta 404 - debe estar al final */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </AuthProvider>
   );
 }

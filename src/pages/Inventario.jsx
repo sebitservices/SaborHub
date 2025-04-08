@@ -152,7 +152,7 @@ const Inventario = () => {
     }
   };
 
-  // Función para obtener los productos
+  // Función para obtener los productos con cálculo de inventario corregido
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
@@ -171,13 +171,8 @@ const Inventario = () => {
           ...doc.data()
         }));
         
-        // Calcular valor total del inventario
-        const totalValue = productsData.reduce((sum, product) => {
-          const stockValue = (product.precio_compra || 0) * (product.stock_actual || 0);
-          return sum + stockValue;
-        }, 0);
-        
-        setTotalInventoryValue(totalValue);
+        // Log para depuración
+        console.log("Productos cargados:", productsData);
         
         // Identificar productos con stock bajo
         const lowStock = productsData.filter(product => {
@@ -186,6 +181,9 @@ const Inventario = () => {
         
         setLowStockProducts(lowStock);
         setProducts(productsData);
+
+        // Ya no calculamos el valor del inventario
+        setTotalInventoryValue(0);
       }
     } catch (err) {
       console.error('Error al cargar productos:', err);
@@ -393,12 +391,31 @@ const Inventario = () => {
         prev.filter(product => product.id !== productId)
       );
       
-      // Recalcular valor del inventario
-      const newTotal = products
-        .filter(product => product.id !== productId)
-        .reduce((sum, product) => {
-          return sum + ((product.precio_compra || 0) * (product.stock_actual || 0));
-        }, 0);
+      // Recalcular valor del inventario con la misma lógica que en fetchProducts
+      const remainingProducts = products.filter(product => product.id !== productId);
+      let newTotal = 0;
+      
+      remainingProducts.forEach(product => {
+        const precioCompra = parseFloat(product.precio_compra) || 0;
+        const stockActual = parseFloat(product.stock_actual) || 0;
+        const unidadesPorMedida = parseFloat(product.unidades_por_medida) || 1;
+        
+        let valorInventarioItem;
+        
+        if (unidadesPorMedida > 1) {
+          const precioUnitario = precioCompra / unidadesPorMedida;
+          const unidadesSueltas = product.tiene_unidades_sueltas ? 
+            (parseFloat(product.cantidad_unidades_sueltas) || 0) : 0;
+          const unidadesTotales = (stockActual * unidadesPorMedida) + unidadesSueltas;
+          valorInventarioItem = unidadesTotales * precioUnitario;
+        } else {
+          valorInventarioItem = precioCompra * stockActual;
+        }
+        
+        if (valorInventarioItem > 0) {
+          newTotal += valorInventarioItem;
+        }
+      });
       
       setTotalInventoryValue(newTotal);
       
@@ -476,6 +493,20 @@ const Inventario = () => {
     
     // Si no se encuentra la categoría pero hay un ID, mostrar algo más descriptivo
     return `Categoría ID: ${categoryId.substring(0, 5)}...`;
+  };
+
+  // Añadir función auxiliar para calcular y mostrar precio unitario
+  const calcularPrecioUnitario = (product) => {
+    if (!product) return 0;
+    
+    const precioCompra = parseFloat(product.precio_compra) || 0;
+    const unidadesPorMedida = parseFloat(product.unidades_por_medida) || 1;
+    
+    if (unidadesPorMedida > 1) {
+      return precioCompra / unidadesPorMedida;
+    }
+    
+    return precioCompra;
   };
 
   // Renderizar la tabla de categorías
@@ -675,7 +706,7 @@ const Inventario = () => {
     return (
       <div className="animate-fadeIn w-full">
         {/* Panel de información */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-blue-100 mr-4">
@@ -696,20 +727,6 @@ const Inventario = () => {
               <div>
                 <p className="text-sm font-medium text-gray-500">Productos con Stock Bajo</p>
                 <p className="text-2xl font-semibold text-gray-800">{lowStockProducts.length}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100 mr-4">
-                <FontAwesomeIcon icon={faMoneyBillWave} className="text-green-600 text-xl" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Valor del Inventario</p>
-                <p className="text-2xl font-semibold text-gray-800">
-                  {formatCLPCurrency(totalInventoryValue)}
-                </p>
               </div>
             </div>
           </div>
@@ -827,13 +844,14 @@ const Inventario = () => {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Compra</th>
                       <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {getFilteredProducts().map(product => {
                       const isLowStock = product.stock_actual <= product.stock_minimo;
+                      const tieneUnidadesCompuestas = product.unidades_por_medida > 1;
+                      
                       return (
                         <tr key={product.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -859,11 +877,16 @@ const Inventario = () => {
                             {isLowStock && (
                               <div className="text-xs text-red-500">Mínimo: {product.stock_minimo}</div>
                             )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {formatCLPCurrency(product.precio_compra || 0)}
-                            </div>
+                            {/* Mostrar unidades totales si es un producto compuesto */}
+                            {tieneUnidadesCompuestas && (
+                              <div className="text-xs text-gray-500">
+                                Total: {product.stock_total_unidades || 0} {
+                                  product.unidad_medida === 'caja' ? 'unidades' : 
+                                  product.unidad_medida === 'kg' ? 'gramos' : 
+                                  product.unidad_medida === 'l' ? 'ml' : 'unidades'
+                                }
+                              </div>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
