@@ -161,7 +161,7 @@ const DeleteUserModal = ({ isOpen, onClose, onUserDeleted, user }) => {
             <h2 className="text-xl font-semibold text-gray-800">Autenticación Requerida</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-full p-1"
+              className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
               aria-label="Cerrar"
             >
               <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
@@ -198,7 +198,7 @@ const DeleteUserModal = ({ isOpen, onClose, onUserDeleted, user }) => {
                   type="email"
                   value={adminCredentials.email}
                   onChange={(e) => setAdminCredentials({...adminCredentials, email: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   required
                 />
               </div>
@@ -212,7 +212,7 @@ const DeleteUserModal = ({ isOpen, onClose, onUserDeleted, user }) => {
                   type="password"
                   value={adminCredentials.password}
                   onChange={(e) => setAdminCredentials({...adminCredentials, password: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   required
                 />
               </div>
@@ -221,14 +221,14 @@ const DeleteUserModal = ({ isOpen, onClose, onUserDeleted, user }) => {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                   disabled={loading}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 flex items-center justify-center min-w-[120px]"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 flex items-center justify-center min-w-[120px]"
                   disabled={loading}
                 >
                   {loading ? (
@@ -261,7 +261,7 @@ const DeleteUserModal = ({ isOpen, onClose, onUserDeleted, user }) => {
           <h2 className="text-xl font-semibold text-gray-800">Eliminar Usuario</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-full p-1"
+            className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
             aria-label="Cerrar"
           >
             <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
@@ -304,7 +304,7 @@ const DeleteUserModal = ({ isOpen, onClose, onUserDeleted, user }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors duration-200"
+                className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               >
                 Entendido
               </button>
@@ -331,7 +331,7 @@ const DeleteUserModal = ({ isOpen, onClose, onUserDeleted, user }) => {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors duration-200"
+                  className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                   disabled={loading}
                 >
                   Cancelar

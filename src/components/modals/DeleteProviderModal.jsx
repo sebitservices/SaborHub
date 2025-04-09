@@ -84,7 +84,7 @@ const DeleteProviderModal = ({ isOpen, onClose, onConfirm, provider }) => {
           </h3>
           <button
             onClick={!loading ? onClose : undefined}
-            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-full p-1"
+            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full p-1"
             disabled={loading}
           >
             <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
@@ -126,7 +126,7 @@ const DeleteProviderModal = ({ isOpen, onClose, onConfirm, provider }) => {
                 <button
                   type="button"
                   onClick={!loading ? onClose : undefined}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
                   disabled={loading}
                 >
                   Cancelar
@@ -134,7 +134,7 @@ const DeleteProviderModal = ({ isOpen, onClose, onConfirm, provider }) => {
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors flex items-center justify-center min-w-[100px]"
+                  className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                   disabled={loading || success}
                 >
                   {loading ? (

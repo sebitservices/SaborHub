@@ -11,7 +11,7 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
-    color: "#6EE7B7" // Color por defecto (verde)
+    color: "#6EE7B7" // Color por defecto (emerald-300)
   });
   
   const [usePreset, setUsePreset] = useState(true);
@@ -22,16 +22,16 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
   
   // Categorías predefinidas
   const presetCategories = [
-    { nombre: "Lácteos", color: "#93C5FD" }, // Azul claro
-    { nombre: "Carnes", color: "#FCA5A5" }, // Rojo claro
-    { nombre: "Verduras", color: "#6EE7B7" }, // Verde claro
-    { nombre: "Frutas", color: "#FCD34D" }, // Amarillo
-    { nombre: "Bebidas", color: "#A78BFA" }, // Púrpura claro
-    { nombre: "Abarrotes", color: "#D1D5DB" }, // Gris claro
-    { nombre: "Condimentos", color: "#FBBF24" }, // Ámbar
-    { nombre: "Congelados", color: "#60A5FA" }, // Azul
-    { nombre: "Snacks", color: "#F97316" }, // Naranja
-    { nombre: "Limpieza", color: "#22D3EE" } // Cyan
+    { nombre: "Lácteos", color: "#2DD4BF" }, // teal-400
+    { nombre: "Carnes", color: "#34D399" }, // emerald-400
+    { nombre: "Verduras", color: "#6EE7B7" }, // emerald-300
+    { nombre: "Frutas", color: "#14B8A6" }, // teal-500
+    { nombre: "Bebidas", color: "#059669" }, // emerald-600
+    { nombre: "Abarrotes", color: "#0D9488" }, // teal-600
+    { nombre: "Condimentos", color: "#10B981" }, // emerald-500
+    { nombre: "Congelados", color: "#0F766E" }, // teal-700
+    { nombre: "Snacks", color: "#047857" }, // emerald-700
+    { nombre: "Limpieza", color: "#0F766E" } // teal-700
   ];
   
   // Control de animación
@@ -177,7 +177,7 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-full p-1"
+            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full p-1"
             aria-label="Cerrar"
           >
             <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
@@ -211,7 +211,7 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
                   <label className="flex items-center cursor-pointer">
                     <input 
                       type="radio" 
-                      className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300"
+                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
                       checked={usePreset}
                       onChange={() => setUsePreset(true)}
                     />
@@ -220,7 +220,7 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
                   <label className="flex items-center cursor-pointer">
                     <input 
                       type="radio" 
-                      className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300"
+                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
                       checked={!usePreset}
                       onChange={() => setUsePreset(false)}
                     />
@@ -235,7 +235,7 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
                     Seleccionar categoría
                   </label>
                   <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                     onChange={handlePresetChange}
                     value={formData.nombre}
                   >
@@ -261,7 +261,7 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
               value={formData.nombre}
               onChange={handleChange}
               disabled={usePreset}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
               required
             />
           </div>
@@ -275,7 +275,7 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
               value={formData.descripcion}
               onChange={handleChange}
               disabled={usePreset}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500 resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 resize-none"
               rows={3}
             ></textarea>
           </div>
@@ -299,7 +299,7 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
                 value={formData.color}
                 onChange={handleChange}
                 disabled={usePreset}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
               />
             </div>
           </div>
@@ -308,14 +308,14 @@ const CategoryFormModal = ({ isOpen, onClose, onCategorySaved, editingCategory =
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
               disabled={loading}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 flex items-center justify-center min-w-[100px]"
+              className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               disabled={loading || success}
             >
               {loading ? (

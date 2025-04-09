@@ -9,8 +9,8 @@ const Pedidos = () => {
           Bienvenido a la sección de gestión de pedidos. Aquí podrás crear nuevos pedidos, 
           dar seguimiento a los existentes y gestionar el estado de las órdenes en curso.
         </p>
-        <div className="mt-8 p-8 bg-amber-50 rounded-lg border border-amber-200 text-center">
-          <p className="text-amber-700 text-lg font-medium">
+        <div className="mt-8 p-8 bg-emerald-50 rounded-lg border border-emerald-200 text-center">
+          <p className="text-emerald-700 text-lg font-medium">
             El módulo de administración de pedidos está en desarrollo.
           </p>
         </div>

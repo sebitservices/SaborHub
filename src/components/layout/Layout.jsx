@@ -1,75 +1,73 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
+import MobileSidebar from './MobileSidebar';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
 const Layout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Detectar si el dispositivo es móvil
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isMobileView = window.innerWidth < 768;
+      setIsMobile(isMobileView);
+      if (isMobileView) {
+        setIsExpanded(false);
+      }
+      setIsSidebarOpen(false);
     };
-    
-    // Comprobar al cargar
+
     checkMobile();
-    
-    // Comprobar al cambiar el tamaño de la ventana
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Función mejorada para alternar el sidebar
-  const toggleSidebar = (forcedState) => {
-    if (typeof forcedState === 'boolean') {
-      setSidebarOpen(forcedState);
-    } else {
-      setSidebarOpen(prev => !prev);
-    }
+  const toggleSidebar = (value) => {
+    setIsSidebarOpen(typeof value === 'boolean' ? value : !isSidebarOpen);
+  };
+
+  const toggleExpanded = (value) => {
+    setIsExpanded(typeof value === 'boolean' ? value : !isExpanded);
   };
 
   return (
-    <div className="h-screen flex bg-gray-100">
-      {/* Sidebar para escritorio - posición fija */}
-      <div className="hidden md:block relative">
-        <Sidebar 
-          isMobile={false}
-          isExpanded={sidebarExpanded} 
-          toggleExpanded={setSidebarExpanded} 
-          sidebarOpen={true} // En escritorio siempre está visible
-        />
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Sidebar para desktop */}
+      <Sidebar 
+        isExpanded={isExpanded}
+        toggleExpanded={toggleExpanded}
+      />
 
-      {/* Sidebar para móvil - modal */}
-      <div className="md:hidden">
-        <Sidebar 
-          isMobile={true} 
-          toggleSidebar={toggleSidebar}
-          sidebarOpen={sidebarOpen}
-          isExpanded={true} // En móvil siempre está expandido
-        />
-      </div>
-
-      {/* Main content */}
-      <div className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${sidebarExpanded ? 'md:ml-64' : 'md:ml-20'}`}>
+      {/* Sidebar para móvil */}
+      <MobileSidebar 
+        isOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
+      
+      <div className={`
+        flex-1 flex flex-col transition-all duration-300
+        ${!isMobile && isExpanded ? 'ml-64' : ''}
+        ${!isMobile && !isExpanded ? 'ml-20' : ''}
+      `}>
         <Navbar 
-          toggleSidebar={toggleSidebar}
-          sidebarOpen={sidebarOpen}
+          toggleSidebar={toggleSidebar} 
+          sidebarOpen={isSidebarOpen} 
           isMobile={isMobile}
+          isExpanded={isExpanded}
         />
         
-        <main className="flex-1 overflow-y-auto">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
-            </div>
+        <main className="flex-1 pt-16 pb-24">
+          <div className="container mx-auto px-4 py-8">
+            {children}
           </div>
         </main>
 
-        <Footer />
+        <Footer 
+          isMobile={isMobile}
+          isExpanded={isExpanded}
+        />
       </div>
     </div>
   );

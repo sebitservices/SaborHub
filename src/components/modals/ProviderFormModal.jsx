@@ -195,7 +195,7 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-full p-1"
+            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full p-1"
             aria-label="Cerrar"
           >
             <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
@@ -230,7 +230,7 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
               name="nombre"
               value={formData.nombre}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
               required
             />
           </div>
@@ -246,7 +246,7 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
               value={formData.rut}
               onChange={handleChange}
               placeholder="12.345.678-9"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
             />
           </div>
           
@@ -259,7 +259,7 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
               name="contacto"
               value={formData.contacto}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
             />
           </div>
           
@@ -273,7 +273,7 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
                 name="telefono"
                 value={formData.telefono}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
               />
             </div>
             
@@ -286,7 +286,7 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
               />
             </div>
           </div>
@@ -300,7 +300,7 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
               name="direccion"
               value={formData.direccion}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
             />
           </div>
           
@@ -312,7 +312,7 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
               name="notas"
               value={formData.notas}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500 resize-none"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm resize-none"
               rows={3}
             ></textarea>
           </div>
@@ -321,14 +321,14 @@ const ProviderFormModal = ({ isOpen, onClose, onProviderSaved, editingProvider =
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
               disabled={loading}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 flex items-center justify-center min-w-[100px]"
+              className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               disabled={loading || success}
             >
               {loading ? (

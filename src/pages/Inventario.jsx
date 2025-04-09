@@ -514,7 +514,7 @@ const Inventario = () => {
     if (loading) {
       return (
         <div className="flex justify-center items-center p-8">
-          <FontAwesomeIcon icon={faSpinner} spin className="text-amber-500 text-3xl" />
+          <FontAwesomeIcon icon={faSpinner} spin className="text-emerald-500 text-3xl" />
           <span className="ml-2 text-gray-600">Cargando categorías...</span>
         </div>
       );
@@ -525,7 +525,7 @@ const Inventario = () => {
         <div className="bg-red-50 p-4 rounded-lg border border-red-200 text-center">
           <p className="text-red-700">{error}</p>
           <button 
-            className="mt-2 px-4 py-1 bg-amber-100 text-amber-800 rounded-md text-sm hover:bg-amber-200"
+            className="mt-2 px-4 py-1 bg-emerald-100 text-emerald-800 rounded-md text-sm hover:bg-emerald-200"
             onClick={fetchCategories}
           >
             Intentar nuevamente
@@ -540,7 +540,7 @@ const Inventario = () => {
           <p className="text-gray-500">No hay categorías registradas.</p>
           <button
             onClick={openCategoryModal}
-            className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center mx-auto"
+            className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center mx-auto"
           >
             <FontAwesomeIcon icon={faPlus} className="mr-2" />
             Crear primera categoría
@@ -583,7 +583,7 @@ const Inventario = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => handleEditCategory(category)}
-                    className="text-amber-600 hover:text-amber-900 mx-2"
+                    className="text-emerald-600 hover:text-emerald-900 mx-2"
                     title="Editar categoría"
                   >
                     <FontAwesomeIcon icon={faEdit} />
@@ -609,7 +609,7 @@ const Inventario = () => {
     if (loading) {
       return (
         <div className="flex justify-center items-center p-8">
-          <FontAwesomeIcon icon={faSpinner} spin className="text-amber-500 text-3xl" />
+          <FontAwesomeIcon icon={faSpinner} spin className="text-emerald-500 text-3xl" />
           <span className="ml-2 text-gray-600">Cargando proveedores...</span>
         </div>
       );
@@ -620,7 +620,7 @@ const Inventario = () => {
         <div className="bg-red-50 p-4 rounded-lg border border-red-200 text-center">
           <p className="text-red-700">{error}</p>
           <button 
-            className="mt-2 px-4 py-1 bg-amber-100 text-amber-800 rounded-md text-sm hover:bg-amber-200"
+            className="mt-2 px-4 py-1 bg-emerald-100 text-emerald-800 rounded-md text-sm hover:bg-emerald-200"
             onClick={fetchProviders}
           >
             Intentar nuevamente
@@ -635,7 +635,7 @@ const Inventario = () => {
           <p className="text-gray-500">No hay proveedores registrados.</p>
           <button
             onClick={openProviderModal}
-            className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center mx-auto"
+            className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center mx-auto"
           >
             <FontAwesomeIcon icon={faPlus} className="mr-2" />
             Añadir primer proveedor
@@ -680,7 +680,7 @@ const Inventario = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => handleEditProvider(provider)}
-                    className="text-amber-600 hover:text-amber-900 mx-2"
+                    className="text-emerald-600 hover:text-emerald-900 mx-2"
                     title="Editar proveedor"
                   >
                     <FontAwesomeIcon icon={faEdit} />
@@ -709,8 +709,8 @@ const Inventario = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 mr-4">
-                <FontAwesomeIcon icon={faBoxes} className="text-blue-600 text-xl" />
+              <div className="p-3 rounded-full bg-emerald-100 mr-4">
+                <FontAwesomeIcon icon={faBoxes} className="text-emerald-600 text-xl" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Total de Productos</p>
@@ -721,8 +721,8 @@ const Inventario = () => {
           
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-amber-100 mr-4">
-                <FontAwesomeIcon icon={faCircleExclamation} className="text-amber-600 text-xl" />
+              <div className="p-3 rounded-full bg-teal-100 mr-4">
+                <FontAwesomeIcon icon={faCircleExclamation} className="text-teal-600 text-xl" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Productos con Stock Bajo</p>
@@ -736,7 +736,7 @@ const Inventario = () => {
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-              <FontAwesomeIcon icon={faBoxOpen} className="mr-3 text-amber-600" />
+              <FontAwesomeIcon icon={faBoxOpen} className="mr-3 text-emerald-600" />
               Productos en Inventario
             </h2>
             
@@ -744,7 +744,7 @@ const Inventario = () => {
               <div className="relative w-full md:w-64">
                 <input 
                   type="text" 
-                  className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" 
+                  className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
                   placeholder="Buscar producto..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -756,7 +756,7 @@ const Inventario = () => {
               
               <button 
                 onClick={openProductModal}
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center justify-center"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center"
               >
                 <FontAwesomeIcon icon={faPlus} className="mr-2" />
                 Nuevo Producto
@@ -768,7 +768,7 @@ const Inventario = () => {
           <div className="mb-6 flex flex-wrap gap-2">
             <button
               className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center ${
-                activeFilter === 'todos' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-700'
+                activeFilter === 'todos' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'
               }`}
               onClick={() => setActiveFilter('todos')}
             >
@@ -804,14 +804,14 @@ const Inventario = () => {
           {/* Tabla de productos */}
           {loading ? (
             <div className="flex justify-center items-center p-8">
-              <FontAwesomeIcon icon={faSpinner} spin className="text-amber-500 text-3xl" />
+              <FontAwesomeIcon icon={faSpinner} spin className="text-emerald-500 text-3xl" />
               <span className="ml-2 text-gray-600">Cargando productos...</span>
             </div>
           ) : error ? (
             <div className="bg-red-50 p-4 rounded-lg border border-red-200 text-center">
               <p className="text-red-700">{error}</p>
               <button 
-                className="mt-2 px-4 py-1 bg-amber-100 text-amber-800 rounded-md text-sm hover:bg-amber-200"
+                className="mt-2 px-4 py-1 bg-emerald-100 text-emerald-800 rounded-md text-sm hover:bg-emerald-200"
                 onClick={fetchProducts}
               >
                 Intentar nuevamente
@@ -824,7 +824,7 @@ const Inventario = () => {
                   <p className="text-gray-500 mb-4">No hay productos en el inventario.</p>
                   <button
                     onClick={openProductModal}
-                    className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center mx-auto"
+                    className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center mx-auto"
                   >
                     <FontAwesomeIcon icon={faPlus} className="mr-2" />
                     Agregar primer producto
@@ -891,7 +891,7 @@ const Inventario = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
                               onClick={() => handleEditProduct(product)}
-                              className="text-amber-600 hover:text-amber-900 mx-2"
+                              className="text-emerald-600 hover:text-emerald-900 mx-2"
                               title="Editar producto"
                             >
                               <FontAwesomeIcon icon={faEdit} />
@@ -916,7 +916,7 @@ const Inventario = () => {
                   Mostrando {getFilteredProducts().length} de {products.length} productos
                 </div>
                 
-                <button className="flex items-center text-amber-600 hover:text-amber-800">
+                <button className="flex items-center text-emerald-600 hover:text-emerald-800">
                   <FontAwesomeIcon icon={faCloudDownload} className="mr-1" />
                   Exportar
                 </button>
@@ -929,7 +929,7 @@ const Inventario = () => {
         {lowStockProducts.length > 0 && (
           <div className="mt-6 bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-              <FontAwesomeIcon icon={faCircleExclamation} className="mr-3 text-amber-600" />
+              <FontAwesomeIcon icon={faCircleExclamation} className="mr-3 text-emerald-600" />
               Productos con Stock Bajo
             </h3>
             
@@ -995,7 +995,7 @@ const Inventario = () => {
       <div className="animate-fadeIn w-full">
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <FontAwesomeIcon icon={faWarehouse} className="mr-3 text-amber-600" />
+            <FontAwesomeIcon icon={faWarehouse} className="mr-3 text-emerald-600" />
             Gestión de Inventario
           </h2>
           <p className="text-gray-600">
@@ -1007,12 +1007,12 @@ const Inventario = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Productos con Stock Bajo</h3>
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="flex items-center text-amber-700">
+            <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+              <div className="flex items-center text-emerald-700">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 mr-2" />
                 <span>Esta sección está en desarrollo.</span>
               </div>
-              <p className="text-sm text-amber-600 mt-2">
+              <p className="text-sm text-emerald-600 mt-2">
                 Aquí se mostrarán los productos que están por debajo del umbral mínimo de stock.
               </p>
             </div>
@@ -1020,12 +1020,12 @@ const Inventario = () => {
           
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Movimientos Recientes</h3>
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="flex items-center text-amber-700">
+            <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+              <div className="flex items-center text-emerald-700">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 mr-2" />
                 <span>Esta sección está en desarrollo.</span>
               </div>
-              <p className="text-sm text-amber-600 mt-2">
+              <p className="text-sm text-emerald-600 mt-2">
                 Aquí se mostrarán los últimos movimientos de inventario (entradas y salidas).
               </p>
             </div>
@@ -1033,12 +1033,12 @@ const Inventario = () => {
           
           <div className="bg-white shadow rounded-lg p-6 md:col-span-2">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Lista de Productos</h3>
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="flex items-center text-amber-700">
+            <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+              <div className="flex items-center text-emerald-700">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 mr-2" />
                 <span>Esta sección está en desarrollo.</span>
               </div>
-              <p className="text-sm text-amber-600 mt-2">
+              <p className="text-sm text-emerald-600 mt-2">
                 Aquí se mostrará la lista completa de productos en inventario con opciones para
                 agregar, editar y eliminar productos.
               </p>
@@ -1054,7 +1054,7 @@ const Inventario = () => {
       <div className="animate-fadeIn w-full">
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <FontAwesomeIcon icon={faTags} className="mr-3 text-amber-600" />
+            <FontAwesomeIcon icon={faTags} className="mr-3 text-emerald-600" />
             Categorías de Inventario
           </h2>
           <p className="text-gray-600">
@@ -1068,7 +1068,7 @@ const Inventario = () => {
             <h3 className="text-lg font-semibold text-gray-800">Listado de Categorías</h3>
             <button 
               onClick={openCategoryModal}
-              className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
             >
               <FontAwesomeIcon icon={faPlus} className="mr-2" />
               Nueva Categoría
@@ -1101,7 +1101,7 @@ const Inventario = () => {
       <div className="animate-fadeIn w-full">
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <FontAwesomeIcon icon={faTruck} className="mr-3 text-amber-600" />
+            <FontAwesomeIcon icon={faTruck} className="mr-3 text-emerald-600" />
             Gestión de Proveedores
           </h2>
           <p className="text-gray-600">
@@ -1115,7 +1115,7 @@ const Inventario = () => {
             <h3 className="text-lg font-semibold text-gray-800">Listado de Proveedores</h3>
             <button 
               onClick={openProviderModal}
-              className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
             >
               <FontAwesomeIcon icon={faPlus} className="mr-2" />
               Nuevo Proveedor
@@ -1147,7 +1147,7 @@ const Inventario = () => {
       <div className="animate-fadeIn w-full">
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <FontAwesomeIcon icon={faChartLine} className="mr-3 text-amber-600" />
+            <FontAwesomeIcon icon={faChartLine} className="mr-3 text-emerald-600" />
             Reportes de Inventario
           </h2>
           <p className="text-gray-600">
@@ -1159,12 +1159,12 @@ const Inventario = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Movimientos por Período</h3>
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="flex items-center text-amber-700">
+            <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+              <div className="flex items-center text-emerald-700">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 mr-2" />
                 <span>Esta sección está en desarrollo.</span>
               </div>
-              <p className="text-sm text-amber-600 mt-2">
+              <p className="text-sm text-emerald-600 mt-2">
                 Aquí podrás generar reportes de movimientos de inventario por período.
               </p>
             </div>
@@ -1172,12 +1172,12 @@ const Inventario = () => {
           
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Valoración de Inventario</h3>
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="flex items-center text-amber-700">
+            <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+              <div className="flex items-center text-emerald-700">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 mr-2" />
                 <span>Esta sección está en desarrollo.</span>
               </div>
-              <p className="text-sm text-amber-600 mt-2">
+              <p className="text-sm text-emerald-600 mt-2">
                 Aquí podrás ver el valor económico total de tu inventario actual.
               </p>
             </div>
@@ -1185,12 +1185,12 @@ const Inventario = () => {
           
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Rotación de Productos</h3>
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="flex items-center text-amber-700">
+            <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+              <div className="flex items-center text-emerald-700">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 mr-2" />
                 <span>Esta sección está en desarrollo.</span>
               </div>
-              <p className="text-sm text-amber-600 mt-2">
+              <p className="text-sm text-emerald-600 mt-2">
                 Aquí podrás ver estadísticas de rotación de productos para optimizar tu inventario.
               </p>
             </div>
@@ -1198,12 +1198,12 @@ const Inventario = () => {
           
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Productos Críticos</h3>
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="flex items-center text-amber-700">
+            <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+              <div className="flex items-center text-emerald-700">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 mr-2" />
                 <span>Esta sección está en desarrollo.</span>
               </div>
-              <p className="text-sm text-amber-600 mt-2">
+              <p className="text-sm text-emerald-600 mt-2">
                 Aquí se mostrarán los productos que requieren atención urgente.
               </p>
             </div>
@@ -1244,7 +1244,7 @@ const Inventario = () => {
                 key={tab.id}
                 className={`py-4 px-6 font-medium flex items-center transition-colors duration-300 whitespace-nowrap
                   ${activeTab === tab.id 
-                    ? 'text-amber-600 border-b-2 border-amber-500 -mb-px' 
+                    ? 'text-emerald-600 border-b-2 border-emerald-500 -mb-px' 
                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                   }`}
                 onClick={() => setActiveTab(tab.id)}

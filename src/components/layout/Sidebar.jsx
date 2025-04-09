@@ -9,8 +9,7 @@ import {
   faChartBar, 
   faCog, 
   faChevronLeft, 
-  faChevronRight, 
-  faTimes,
+  faChevronRight,
   faUser,
   faFireFlameCurved,
   faChevronDown,
@@ -19,8 +18,10 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import logoHorizontal from '../../assets/images/saborhub-horizontal.webp';
+import logoSquare from '../../assets/images/saborhub.webp';
 
-const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarOpen }) => {
+const Sidebar = ({ isExpanded, toggleExpanded }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -28,7 +29,7 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
   const [userPermisos, setUserPermisos] = useState(null);
   const [loadingPermisos, setLoadingPermisos] = useState(true);
   
-  // Mejorado - Obtener permisos del usuario al cargar el componente
+  // Obtener permisos del usuario al cargar el componente
   useEffect(() => {
     const getUserPermisos = async () => {
       setLoadingPermisos(true);
@@ -53,7 +54,6 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
         
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          console.log("Datos del usuario:", userData);
           
           // Si es administrador, tiene acceso a todo
           if (userData.rol?.toLowerCase() === 'administrador') {
@@ -72,7 +72,6 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
             setUserPermisos({
               rolAdmin: false,
               ...userData.permisos || {},
-              // Asegurar que estas propiedades existan
               configuracion: userData.permisos?.configuracion || false,
               dashboard: userData.permisos?.dashboard || false
             });
@@ -113,10 +112,10 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
 
   // Cerrar dropdowns cuando se colapsa el sidebar
   useEffect(() => {
-    if (!isExpanded && !isMobile) {
+    if (!isExpanded) {
       setActiveDropdown(null);
     }
-  }, [isExpanded, isMobile]);
+  }, [isExpanded]);
 
   const navigation = [
     { 
@@ -162,7 +161,7 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
   ];
 
   const toggleDropdown = (index) => {
-    if (!isExpanded && !isMobile) {
+    if (!isExpanded) {
       toggleExpanded(true);
       setActiveDropdown(index);
       return;
@@ -197,33 +196,20 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
     return currentUser.displayName || currentUser.email.split('@')[0];
   };
 
-  // Función para manejar la navegación con transición suave
+  // Función para manejar la navegación
   const handleNavigation = (e, href) => {
     e.preventDefault();
-    
-    if (isMobile) {
-      toggleSidebar(false);
-      setTimeout(() => {
-        navigate(href);
-      }, 300);
-    } else {
-      navigate(href);
-    }
+    navigate(href);
   };
 
   // Función para verificar si el usuario tiene acceso a cierta sección
   const hasPermission = (section) => {
-    // Depuración para ver qué está pasando
-    console.log("Verificando permiso para:", section);
-    console.log("Permisos del usuario:", userPermisos);
-    
-    // Si no hay permisos, no mostrar nada
     if (!userPermisos) return false;
     
-    // Normalizar el nombre de la sección (minúsculas y sin acento)
+    // Normalizar el nombre de la sección
     const normalizedSection = section.toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");  // Eliminar acentos
+      .replace(/[\u0300-\u036f]/g, "");
     
     // Si el usuario es administrador, siempre tiene acceso a todo
     if (userPermisos.rolAdmin) return true;
@@ -266,16 +252,15 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
         // Para las demás secciones
         return hasPermission(sectionName);
       })
-    : navigation; // Si no hay permisos cargados, mostrar menú completo (por seguridad)
+    : navigation;
 
-  // Función mejorada para mostrar el contenido del sidebar
+  // Renderizado del contenido del sidebar
   const renderSidebarContent = () => {
-    // Si estamos cargando permisos, mostrar un loader o nada
+    // Si estamos cargando permisos, mostrar un loader
     if (loadingPermisos) {
       return (
         <div className="flex-1 py-4 flex items-center justify-center">
           <div className="text-amber-500 animate-pulse">
-            {/* Puedes usar un spinner o simplemente texto */}
             <span className="sr-only">Cargando...</span>
           </div>
         </div>
@@ -288,45 +273,75 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
         <ul className="space-y-1 px-2">
           {(userPermisos ? filteredNavigation : []).map((item, index) => (
             <li key={item.name} className="group">
-              {/* ...existing code... */}
               {item.submenu ? (
                 <div>
                   <button
-                    className={`w-full flex items-center justify-center ${isExpanded ? 'justify-between' : 'justify-center'} p-2.5 rounded-lg text-base font-medium transition-all duration-300 ease-in-out hover:bg-amber-600/20 ${
-                      activeDropdown === index ? 'bg-amber-600/20 text-amber-300' : 'text-gray-300'
-                    }`}
+                    className={`
+                      w-full flex items-center
+                      ${isExpanded ? 'justify-between px-3' : 'justify-center'} 
+                      p-2.5 rounded-lg text-base font-medium 
+                      transition-all duration-300 ease-in-out
+                      hover:bg-teal-50 
+                      ${activeDropdown === index ? 'bg-teal-50 text-teal-600' : 'text-gray-600'}
+                    `}
                     onClick={() => toggleDropdown(index)}
                   >
-                    <div className="flex items-center">
-                      <span className={`${isExpanded ? 'mr-3 w-5 text-center' : 'mx-auto'} text-amber-400 group-hover:text-amber-300`}>
-                        <FontAwesomeIcon icon={item.icon} className="h-5 w-5" />
-                      </span>
-                      {(isExpanded || isMobile) && (
-                        <span className="transition-all duration-300 whitespace-nowrap">{item.name}</span>
+                    <div className={`
+                      flex items-center
+                      ${isExpanded ? 'w-full' : 'w-10 h-10'}
+                      transition-all duration-300 ease-in-out
+                    `}>
+                      <div className={`
+                        flex items-center justify-center
+                        ${isExpanded ? 'mr-3 w-5' : 'w-10'}
+                        transition-all duration-300 ease-in-out
+                      `}>
+                        <FontAwesomeIcon 
+                          icon={item.icon} 
+                          className={`
+                            h-5 w-5 transition-colors duration-300
+                            ${activeDropdown === index ? 'text-teal-600' : 'text-teal-500'}
+                            group-hover:text-teal-600
+                          `}
+                          fixedWidth
+                        />
+                      </div>
+                      {isExpanded && (
+                        <span className="transition-all duration-300 ease-in-out whitespace-nowrap">
+                          {item.name}
+                        </span>
                       )}
                     </div>
                     
-                    {(isExpanded || isMobile) && (
+                    {isExpanded && (
                       <FontAwesomeIcon
                         icon={activeDropdown === index ? faChevronDown : faChevronRight}
-                        className={`ml-auto h-3 w-3 text-amber-400 transform transition-transform duration-300 ${activeDropdown === index ? 'rotate-180' : ''}`}
+                        className={`
+                          ml-2 h-3 w-3 text-teal-500 
+                          transform transition-all duration-300 ease-in-out
+                          ${activeDropdown === index ? 'rotate-180' : ''}
+                        `}
+                        fixedWidth
                       />
                     )}
                   </button>
                   
                   {/* Submenu */}
-                  {(isExpanded || isMobile) && activeDropdown === index && (
+                  {isExpanded && activeDropdown === index && (
                     <ul className="mt-1 mb-2 space-y-1 pl-10 overflow-hidden transition-all duration-300 ease-in-out">
                       {item.submenuItems.map((subItem) => (
                         <li key={subItem.name}>
                           <a
                             href={subItem.href}
                             onClick={(e) => handleNavigation(e, subItem.href)}
-                            className={`block p-2 text-sm font-medium rounded-md transition-all duration-300 ease-in-out ${
-                              isActive(subItem.href) 
-                                ? 'bg-amber-600 text-white' 
-                                : 'text-gray-300 hover:bg-slate-700 hover:text-white'
-                            }`}
+                            className={`
+                              block p-2 text-sm font-medium rounded-md 
+                              transition-all duration-300 ease-in-out
+                              ${isActive(subItem.href) 
+                                ? 'bg-teal-500 text-white' 
+                                : 'text-gray-600 hover:bg-teal-50 hover:text-teal-600'
+                              }
+                            `}
                           >
                             {subItem.name}
                           </a>
@@ -339,22 +354,40 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
                 <a
                   href={item.href}
                   onClick={(e) => handleNavigation(e, item.href)}
-                  className={`flex items-center ${isExpanded ? 'justify-start' : 'justify-center'} p-2.5 rounded-lg text-base font-medium transition-all duration-300 ease-in-out relative group ${
-                    isActive(item.href) 
-                      ? 'bg-amber-600 text-white' 
-                      : 'text-gray-300 hover:bg-amber-600/20 hover:text-white'
-                  }`}
+                  className={`
+                    flex items-center
+                    ${isExpanded ? 'px-3' : 'justify-center'} 
+                    p-2.5 rounded-lg text-base font-medium 
+                    transition-all duration-300 ease-in-out relative group
+                    ${isActive(item.href) 
+                      ? 'bg-teal-500 text-white' 
+                      : 'text-gray-600 hover:bg-teal-50 hover:text-teal-600'
+                    }
+                  `}
                 >
-                  <span className={`${isExpanded ? 'mr-3 w-5 text-center' : 'mx-auto'} ${isActive(item.href) ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`}>
-                    <FontAwesomeIcon icon={item.icon} className="h-5 w-5" />
-                  </span>
-                  {(isExpanded || isMobile) && (
-                    <span className="transition-all duration-300 whitespace-nowrap">{item.name}</span>
+                  <div className={`
+                    flex items-center justify-center
+                    ${isExpanded ? 'mr-3 w-5' : 'w-10'}
+                    transition-all duration-300 ease-in-out
+                  `}>
+                    <FontAwesomeIcon 
+                      icon={item.icon} 
+                      className={`
+                        h-5 w-5 transition-colors duration-300
+                        ${isActive(item.href) ? 'text-white' : 'text-teal-500 group-hover:text-teal-600'}
+                      `}
+                      fixedWidth
+                    />
+                  </div>
+                  {isExpanded && (
+                    <span className="transition-all duration-300 ease-in-out whitespace-nowrap">
+                      {item.name}
+                    </span>
                   )}
                   
-                  {/* Tooltip */}
-                  {!isExpanded && !isMobile && (
-                    <div className="absolute left-full ml-6 -translate-y-1/2 top-1/2 w-auto p-2 min-w-max rounded-md shadow-lg text-white bg-slate-800 text-xs font-bold transition-all duration-300 origin-left opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 z-50">
+                  {/* Tooltip para modo colapsado */}
+                  {!isExpanded && (
+                    <div className="absolute left-full ml-6 -translate-y-1/2 top-1/2 w-auto p-2 min-w-max rounded-md shadow-lg text-white bg-gray-800 text-xs font-bold transition-all duration-300 ease-in-out origin-left opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 z-50">
                       {item.name}
                     </div>
                   )}
@@ -368,79 +401,86 @@ const Sidebar = ({ isMobile, toggleSidebar, isExpanded, toggleExpanded, sidebarO
   };
 
   return (
-    <>
-      {/* Overlay para pantalla móvil */}
-      {isMobile && sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm transition-opacity duration-500"
-          onClick={() => toggleSidebar(false)}
-        ></div>
-      )}
-
-      {/* Sidebar */}
-      <div 
-        className={`
-          ${isMobile ? 'fixed inset-y-0 left-0 z-50 transform transition-all duration-500 ease-in-out' : 'fixed inset-y-0 left-0 transition-all duration-500 ease-in-out'} 
-          ${isMobile && !sidebarOpen ? '-translate-x-full opacity-0' : isMobile && sidebarOpen ? 'translate-x-0 opacity-100' : ''}
-          ${isExpanded ? 'w-64' : 'w-20'}
-          bg-gradient-to-b from-slate-800 to-slate-900 text-white h-full flex flex-col shadow-xl`}
-      >
-        {/* Sidebar header */}
-        <div className={`flex items-center justify-between h-16 ${isExpanded ? 'px-6' : 'px-2'} bg-gradient-to-r from-amber-600 to-amber-700 border-b border-amber-700/50`}>
-          <Link to="/dashboard" className="flex items-center space-x-3">
-            <div className="min-w-[32px] h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg">
-              <FontAwesomeIcon icon={faFireFlameCurved} className="h-4 w-4 text-white" />
-            </div>
-            {(isExpanded || isMobile) && (
-              <span className="text-lg font-bold text-white transition-all duration-500 ease-in-out">
-                SaborHub
-              </span>
-            )}
-          </Link>
-          
-          {/* Botón para colapsar/expandir en desktop */}
-          {!isMobile && (
-            <button 
-              onClick={() => toggleExpanded(!isExpanded)} 
-              className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
-            >
-              <FontAwesomeIcon 
-                icon={isExpanded ? faChevronLeft : faChevronRight} 
-                className="h-4 w-4 transition-transform duration-500"
+    <div 
+      className={`
+        fixed inset-y-0 left-0 transition-all duration-300 ease-in-out z-20
+        ${isExpanded ? 'w-64' : 'w-20'}
+        bg-white text-gray-700 h-full flex flex-col shadow-xl
+        hidden md:flex
+      `}
+    >
+      {/* Sidebar header */}
+      <div className={`
+        flex items-center justify-between h-20 
+        ${isExpanded ? 'px-4' : 'px-2'} 
+        bg-gradient-to-r from-teal-500 to-teal-600
+        border-b border-teal-400/20
+      `}>
+        <Link to="/dashboard" className="flex-1 flex items-center justify-center">
+          <div className="relative w-full h-16 flex items-center justify-center">
+            <img 
+              src={logoHorizontal} 
+              alt="SaborHub" 
+              className={`
+                absolute transition-all duration-300 ease-in-out transform
+                ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
+                h-16 w-auto object-contain max-w-[200px]
+              `}
+            />
+            <div className={`
+              absolute transition-all duration-300 ease-in-out transform
+              ${isExpanded ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
+            `}>
+              <img 
+                src={logoSquare} 
+                alt="SaborHub" 
+                className="h-16 w-16 object-contain p-1"
               />
-            </button>
-          )}
-          
-          {/* Botón para cerrar en móvil */}
-          {isMobile && sidebarOpen && (
-            <button 
-              onClick={() => toggleSidebar(false)} 
-              className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
-            >
-              <FontAwesomeIcon icon={faTimes} className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Sidebar content - reemplazar con el contenido renderizado */}
-        {renderSidebarContent()}
-
-        {/* User profile section */}
-        <div className={`p-4 border-t border-slate-700 ${isExpanded ? '' : 'flex justify-center'}`}>
-          <div className={`flex items-center ${isExpanded ? '' : 'justify-center'} p-2 rounded-lg text-base font-medium text-gray-300 hover:bg-amber-600/20 hover:text-white transition-all duration-300 ease-in-out`}>
-            <div className={`min-w-[32px] h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center ${isExpanded ? 'mr-3' : ''}`}>
-              <span className="text-white text-sm font-semibold">{getUserInitials()}</span>
             </div>
-            {(isExpanded || isMobile) && (
-              <div className="transition-all duration-500 whitespace-nowrap">
-                <p className="text-sm font-medium">{getDisplayName()}</p>
-                <p className="text-xs text-gray-400">{currentUser?.email || 'Invitado'}</p>
-              </div>
-            )}
           </div>
+        </Link>
+        
+        {/* Botón para colapsar/expandir */}
+        <button 
+          onClick={() => toggleExpanded(!isExpanded)} 
+          className="absolute -right-3 top-1/2 -translate-y-1/2 bg-teal-500 hover:bg-teal-600 text-white p-1.5 rounded-r-lg shadow-lg transition-all duration-300"
+        >
+          <FontAwesomeIcon 
+            icon={isExpanded ? faChevronLeft : faChevronRight} 
+            className="h-4 w-4 transition-transform duration-300"
+          />
+        </button>
+      </div>
+
+      {/* Sidebar content */}
+      {renderSidebarContent()}
+
+      {/* User profile section */}
+      <div className={`p-4 border-t border-gray-200 ${isExpanded ? '' : 'flex justify-center'}`}>
+        <div className={`
+          flex items-center ${isExpanded ? '' : 'justify-center'} 
+          p-2 rounded-lg text-base font-medium 
+          text-gray-600 hover:bg-teal-50 
+          transition-all duration-300 ease-in-out
+        `}>
+          <div className={`
+            min-w-[32px] h-8 rounded-lg 
+            bg-gradient-to-br from-teal-500 to-teal-600 
+            flex items-center justify-center 
+            ${isExpanded ? 'mr-3' : ''}
+            transition-all duration-300 ease-in-out
+          `}>
+            <span className="text-white text-sm font-semibold">{getUserInitials()}</span>
+          </div>
+          {isExpanded && (
+            <div className="transition-all duration-300 ease-in-out whitespace-nowrap">
+              <p className="text-sm font-medium text-gray-700">{getDisplayName()}</p>
+              <p className="text-xs text-gray-500">{currentUser?.email || 'Invitado'}</p>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

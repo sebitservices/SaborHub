@@ -490,13 +490,13 @@ const Menu = () => {
                 isBlocked ? 'opacity-75' : ''
               }`}
             >
-              <div className="bg-amber-50 p-4 border-b border-amber-100 flex items-center">
+              <div className="bg-emerald-50 p-4 border-b border-emerald-100 flex items-center">
                 <div className="flex items-center mr-3">
                   <div className="flex flex-col">
                     <button 
                       onClick={() => moveSectionUp(index)}
                       disabled={index === 0}
-                      className={`p-1 text-xs ${index === 0 ? 'text-gray-300 cursor-default' : 'text-amber-600 hover:bg-amber-100 rounded'}`}
+                      className={`p-1 text-xs ${index === 0 ? 'text-gray-300 cursor-default' : 'text-emerald-600 hover:bg-emerald-100 rounded'}`}
                       title="Mover arriba"
                     >
                       <FontAwesomeIcon icon={faArrowUp} />
@@ -504,7 +504,7 @@ const Menu = () => {
                     <button 
                       onClick={() => moveSectionDown(index)}
                       disabled={index === sections.length - 1}
-                      className={`p-1 text-xs ${index === sections.length - 1 ? 'text-gray-300 cursor-default' : 'text-amber-600 hover:bg-amber-100 rounded'}`}
+                      className={`p-1 text-xs ${index === sections.length - 1 ? 'text-gray-300 cursor-default' : 'text-emerald-600 hover:bg-emerald-100 rounded'}`}
                       title="Mover abajo"
                     >
                       <FontAwesomeIcon icon={faArrowDown} />
@@ -546,7 +546,7 @@ const Menu = () => {
                 <div className="flex">
                   <button 
                     onClick={() => openEditSectionModal(section)}
-                    className="p-2 text-amber-600 hover:text-amber-800"
+                    className="p-2 text-emerald-600 hover:text-emerald-800"
                     title="Editar sección"
                   >
                     <FontAwesomeIcon icon={faEdit} />
@@ -568,7 +568,7 @@ const Menu = () => {
                   </h5>
                   <button 
                     onClick={() => openProductModal(section)}
-                    className={`px-3 py-1.5 bg-amber-100 text-amber-800 rounded-md text-sm hover:bg-amber-200 transition-colors inline-flex items-center ${
+                    className={`px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-md text-sm hover:bg-emerald-200 transition-colors inline-flex items-center ${
                       isBlocked ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                     disabled={isBlocked}
@@ -596,7 +596,7 @@ const Menu = () => {
                         <div className="flex-1">
                           <div className="flex justify-between">
                             <h6 className="font-medium text-gray-800">{product.nombre || product.name}</h6>
-                            <span className="font-semibold text-amber-700">
+                            <span className="font-semibold text-emerald-700">
                               {formatPrice(product.precio || product.price)}
                             </span>
                           </div>
@@ -614,7 +614,7 @@ const Menu = () => {
                         <div className="ml-4 flex">
                           <button 
                             onClick={() => openEditProductModal(section, product)}
-                            className="p-1.5 text-amber-600 hover:text-amber-800"
+                            className="p-1.5 text-emerald-600 hover:text-emerald-800"
                             title="Editar producto"
                           >
                             <FontAwesomeIcon icon={faPencil} className="text-xs" />
@@ -656,7 +656,7 @@ const Menu = () => {
       <div className="animate-fadeIn w-full">
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <FontAwesomeIcon icon={faUtensils} className="mr-3 text-amber-600" />
+            <FontAwesomeIcon icon={faUtensils} className="mr-3 text-emerald-600" />
             Gestión del Menú
           </h2>
           <p className="text-gray-600">
@@ -669,7 +669,7 @@ const Menu = () => {
           <h3 className="text-lg font-semibold text-gray-800">Secciones del Menú</h3>
           <button 
             onClick={openSectionModal}
-            className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center"
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
           >
             <FontAwesomeIcon icon={faPlus} className="mr-2" />
             Nueva Sección
@@ -679,7 +679,7 @@ const Menu = () => {
         {/* Estado de carga */}
         {loading && (
           <div className="flex justify-center items-center p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
             <span className="ml-2 text-gray-600">Cargando datos...</span>
           </div>
         )}
@@ -689,7 +689,7 @@ const Menu = () => {
           <div className="bg-red-50 p-4 rounded-lg border border-red-200 text-center mb-6">
             <p className="text-red-600">{error}</p>
             <button 
-              className="mt-2 px-4 py-1 bg-amber-100 text-amber-800 rounded-md text-sm hover:bg-amber-200"
+              className="mt-2 px-4 py-1 bg-emerald-100 text-emerald-800 rounded-md text-sm hover:bg-emerald-200"
               onClick={fetchMenuSections}
             >
               Intentar nuevamente
@@ -704,7 +704,7 @@ const Menu = () => {
             <p className="text-gray-500 mb-4">No has creado ninguna sección en tu menú</p>
             <button 
               onClick={openSectionModal}
-              className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors inline-flex items-center"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors inline-flex items-center"
             >
               <FontAwesomeIcon icon={faPlus} className="mr-2" />
               Crear Primera Sección
@@ -715,7 +715,7 @@ const Menu = () => {
             {reordering && (
               <div className="absolute inset-0 bg-black/10 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
                 <div className="bg-white p-4 rounded-lg shadow-lg flex items-center">
-                  <FontAwesomeIcon icon={faSpinner} spin className="text-amber-600 mr-3 text-xl" />
+                  <FontAwesomeIcon icon={faSpinner} spin className="text-emerald-600 mr-3 text-xl" />
                   <p className="text-gray-700">Guardando nuevo orden...</p>
                 </div>
               </div>
@@ -853,7 +853,7 @@ const Menu = () => {
       <div className="animate-fadeIn w-full">
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <FontAwesomeIcon icon={faClock} className="mr-3 text-amber-600" />
+            <FontAwesomeIcon icon={faClock} className="mr-3 text-emerald-600" />
             Horarios de Disponibilidad
           </h2>
           <p className="text-gray-600">
@@ -864,14 +864,14 @@ const Menu = () => {
         
         {loading ? (
           <div className="flex justify-center items-center p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
             <span className="ml-2 text-gray-600">Cargando datos...</span>
           </div>
         ) : error ? (
           <div className="bg-red-50 p-4 rounded-lg border border-red-200 text-center mb-6">
             <p className="text-red-600">{error}</p>
             <button 
-              className="mt-2 px-4 py-1 bg-amber-100 text-amber-800 rounded-md text-sm hover:bg-amber-200"
+              className="mt-2 px-4 py-1 bg-emerald-100 text-emerald-800 rounded-md text-sm hover:bg-emerald-200"
               onClick={fetchMenuSections}
             >
               Intentar nuevamente
@@ -883,7 +883,7 @@ const Menu = () => {
             <p className="text-gray-500 mb-4">No hay secciones en tu menú para configurar horarios</p>
             <button 
               onClick={() => setActiveTab('menu')}
-              className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors inline-flex items-center"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors inline-flex items-center"
             >
               <FontAwesomeIcon icon={faPlus} className="mr-2" />
               Ir a crear secciones
@@ -907,7 +907,7 @@ const Menu = () => {
                     </button>
                     <button
                       onClick={saveSchedules}
-                      className="px-3 py-1.5 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors inline-flex items-center"
+                      className="px-3 py-1.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors inline-flex items-center"
                       disabled={savingSchedules}
                     >
                       {savingSchedules ? (
@@ -921,7 +921,7 @@ const Menu = () => {
                 ) : (
                   <button
                     onClick={startEditing}
-                    className="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-md hover:bg-amber-200 transition-colors inline-flex items-center"
+                    className="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-md hover:bg-emerald-200 transition-colors inline-flex items-center"
                   >
                     <FontAwesomeIcon icon={faEdit} className="mr-1.5 text-xs" />
                     Editar horarios
@@ -940,7 +940,7 @@ const Menu = () => {
                 
                 return (
                   <div key={section.id} className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
-                    <div className="bg-amber-50 p-4 border-b border-amber-100 flex items-center justify-between">
+                    <div className="bg-emerald-50 p-4 border-b border-emerald-100 flex items-center justify-between">
                       <div className="flex-1">
                         <h4 className="font-semibold text-lg text-gray-800">{section.name}</h4>
                         {section.description && (
@@ -967,7 +967,7 @@ const Menu = () => {
                       
                       {!isEditing && (
                         <div className={`px-3 py-1 rounded-full text-sm ${
-                          schedule.siempreDisponible ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                          schedule.siempreDisponible ? 'bg-green-100 text-green-800' : 'bg-emerald-100 text-emerald-800'
                         }`}>
                           {schedule.siempreDisponible ? 'Siempre disponible' : 'Disponible según horario'}
                         </div>
@@ -1031,7 +1031,7 @@ const Menu = () => {
                                           type="time"
                                           value={daySchedule.inicio}
                                           onChange={(e) => updateSchedule(section.id, index, 'inicio', e.target.value)}
-                                          className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                                          className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                                           disabled={!daySchedule.activo || schedule.siempreDisponible}
                                         />
                                       ) : (
@@ -1046,7 +1046,7 @@ const Menu = () => {
                                           type="time"
                                           value={daySchedule.fin}
                                           onChange={(e) => updateSchedule(section.id, index, 'fin', e.target.value)}
-                                          className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                                          className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                                           disabled={!daySchedule.activo || schedule.siempreDisponible}
                                         />
                                       ) : (
@@ -1063,7 +1063,7 @@ const Menu = () => {
                         </div>
                         
                         {isEditing && schedule.siempreDisponible && (
-                          <div className="mt-3 text-sm text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200">
+                          <div className="mt-3 text-sm text-emerald-600 bg-emerald-50 p-3 rounded-md border border-emerald-200">
                             <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
                             Esta sección está configurada como "siempre disponible". Para editar horarios específicos, desactiva esta opción primero.
                           </div>
@@ -1086,7 +1086,7 @@ const Menu = () => {
       <div className="animate-fadeIn w-full">
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <FontAwesomeIcon icon={faClock} className="mr-3 text-amber-600" />
+            <FontAwesomeIcon icon={faClock} className="mr-3 text-emerald-600" />
             Horario de Atención
           </h2>
           <p className="text-gray-600">
@@ -1097,7 +1097,7 @@ const Menu = () => {
         
         <div className="bg-white shadow rounded-lg p-10 text-center">
           <div className="mb-6">
-            <FontAwesomeIcon icon={faClock} className="text-amber-500 text-5xl mb-4" />
+            <FontAwesomeIcon icon={faClock} className="text-emerald-500 text-5xl mb-4" />
             <h3 className="text-xl font-semibold text-gray-800 mb-2">¡Próximamente!</h3>
             <p className="text-gray-600 max-w-lg mx-auto">
               Estamos trabajando para implementar la gestión de horarios de tu restaurante. 
@@ -1106,8 +1106,8 @@ const Menu = () => {
             </p>
           </div>
           
-          <div className="mt-8 p-4 bg-amber-50 rounded-lg border border-amber-200 inline-block">
-            <div className="flex items-center justify-center text-amber-700">
+          <div className="mt-8 p-4 bg-emerald-50 rounded-lg border border-emerald-200 inline-block">
+            <div className="flex items-center justify-center text-emerald-700">
               <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 mr-2" />
               <span className="font-medium">Esta sección está en desarrollo</span>
             </div>
@@ -1145,7 +1145,7 @@ const Menu = () => {
                 key={tab.id}
                 className={`py-4 px-6 font-medium flex items-center transition-colors duration-300 whitespace-nowrap
                   ${activeTab === tab.id 
-                    ? 'text-amber-600 border-b-2 border-amber-500 -mb-px' 
+                    ? 'text-emerald-600 border-b-2 border-emerald-500 -mb-px' 
                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                   }`}
                 onClick={() => setActiveTab(tab.id)}

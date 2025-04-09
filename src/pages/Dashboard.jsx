@@ -49,8 +49,8 @@ const Dashboard = () => {
           <div key={stat.name} className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-amber-100 rounded-md p-3">
-                  <div className="h-8 w-8 text-amber-600">
+                <div className="flex-shrink-0 bg-emerald-100 rounded-md p-3">
+                  <div className="h-8 w-8 text-emerald-600">
                     {stat.name === 'Ventas Hoy' && (
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -134,7 +134,7 @@ const Dashboard = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-amber-600">#{order.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-emerald-600">#{order.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.table}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
@@ -149,7 +149,7 @@ const Dashboard = () => {
             </table>
           </div>
           <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-center">
-            <button className="text-sm text-amber-600 hover:text-amber-800 font-medium">
+            <button className="text-sm text-emerald-600 hover:text-emerald-800 font-medium">
               Ver todos los pedidos
             </button>
           </div>
@@ -188,7 +188,7 @@ const Dashboard = () => {
                       <div className="flex items-center">
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
-                            className={`h-2 rounded-full ${item.inventory > 30 ? 'bg-green-500' : 'bg-amber-500'}`} 
+                            className={`h-2 rounded-full ${item.inventory > 30 ? 'bg-green-500' : 'bg-emerald-500'}`} 
                             style={{ width: `${(item.inventory / 50) * 100}%` }}
                           ></div>
                         </div>
@@ -201,7 +201,7 @@ const Dashboard = () => {
             </table>
           </div>
           <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-center">
-            <button className="text-sm text-amber-600 hover:text-amber-800 font-medium">
+            <button className="text-sm text-emerald-600 hover:text-emerald-800 font-medium">
               Ver todos los productos
             </button>
           </div>

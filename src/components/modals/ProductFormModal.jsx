@@ -343,8 +343,8 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
           )}
           
           {stockWarning && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg relative flex items-center">
-              <FontAwesomeIcon icon={faWarning} className="w-5 h-5 mr-2 text-amber-600" />
+            <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg relative flex items-center">
+              <FontAwesomeIcon icon={faWarning} className="w-5 h-5 mr-2 text-emerald-600" />
               <div className="text-sm">
                 El stock actual está por debajo o es igual al stock mínimo. Se marcará como stock bajo.
               </div>
@@ -363,7 +363,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                   name="nombre"
                   value={formData.nombre}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Ej: Harina de trigo"
                   required
                 />
@@ -378,7 +378,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                   name="codigo"
                   value={formData.codigo}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Ej: PROD-001"
                 />
               </div>
@@ -394,7 +394,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                 value={formData.descripcion}
                 onChange={handleChange}
                 rows="2"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 placeholder="Añade una descripción del producto..."
               ></textarea>
             </div>
@@ -409,7 +409,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                   name="categoria"
                   value={formData.categoria}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 >
                   <option value="">-- Seleccionar Categoría --</option>
                   {categories.map(category => (
@@ -428,7 +428,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                   name="proveedor"
                   value={formData.proveedor}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 >
                   <option value="">-- Seleccionar Proveedor --</option>
                   {providers.map(provider => (
@@ -450,7 +450,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                   name="unidad_medida"
                   value={formData.unidad_medida}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 >
                   <option value="unidad">Unidad</option>
                   <option value="kg">Kilogramo (kg)</option>
@@ -479,7 +479,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                     name="unidades_por_medida"
                     value={formData.unidades_por_medida}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder={formData.unidad_medida === 'caja' 
                       ? "Ej: 24 (unidades por caja)" 
                       : formData.unidad_medida === 'kg'
@@ -515,7 +515,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                   name="stock_actual"
                   value={formData.stock_actual}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder={unidadCompuesta ? `Ej: 10 ${formData.unidad_medida}s` : "Stock actual"}
                   inputMode="decimal"
                 />
@@ -535,7 +535,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                   name="stock_minimo"
                   value={formData.stock_minimo}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Stock mínimo"
                   inputMode="decimal"
                 />
@@ -553,7 +553,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                   name="ubicacion"
                   value={formData.ubicacion}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Ej: Bodega A, Estante 2"
                 />
               </div>
@@ -579,7 +579,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                     name="tiene_unidades_sueltas"
                     checked={formData.tiene_unidades_sueltas}
                     onChange={handleChange}
-                    className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                   />
                   <label htmlFor="tiene_unidades_sueltas" className="ml-2 block text-sm text-blue-700">
                     Tengo {formData.unidad_medida}s abiertas o unidades sueltas
@@ -596,7 +596,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                       name="cantidad_unidades_sueltas"
                       value={formData.cantidad_unidades_sueltas}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500 bg-white"
+                      className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white"
                       placeholder={`Ej: 5 ${getBaseUnitLabel()}`}
                       inputMode="decimal"
                     />
@@ -641,7 +641,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
                 value={formData.notas}
                 onChange={handleChange}
                 rows="2"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 placeholder="Información adicional, instrucciones, etc."
               ></textarea>
             </div>
@@ -658,7 +658,7 @@ const ProductFormModal = ({ isOpen, onClose, onProductSaved, editingProduct = nu
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 flex items-center space-x-2"
+                className="px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 flex items-center space-x-2"
                 disabled={loading || success}
               >
                 {loading ? (

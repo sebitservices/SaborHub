@@ -9,8 +9,8 @@ const Mesas = () => {
           Bienvenido a la sección de gestión de mesas. Aquí podrás ver el estado de las mesas del restaurante, 
           asignar clientes, transferir órdenes y gestionar reservas.
         </p>
-        <div className="mt-8 p-8 bg-amber-50 rounded-lg border border-amber-200 text-center">
-          <p className="text-amber-700 text-lg font-medium">
+        <div className="mt-8 p-8 bg-emerald-50 rounded-lg border border-emerald-200 text-center">
+          <p className="text-emerald-700 text-lg font-medium">
             El módulo de administración de mesas está en desarrollo.
           </p>
         </div>

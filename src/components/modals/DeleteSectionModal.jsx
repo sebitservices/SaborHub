@@ -60,7 +60,7 @@ const DeleteSectionModal = ({ isOpen, onClose, onConfirm, section }) => {
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full p-1"
           >
             <FontAwesomeIcon icon={faTimes} />
           </button>
@@ -96,14 +96,14 @@ const DeleteSectionModal = ({ isOpen, onClose, onConfirm, section }) => {
           <div className="flex justify-center space-x-3 pt-4">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
               disabled={loading}
             >
               Cancelar
             </button>
             <button
               onClick={handleConfirm}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center"
+              className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               disabled={loading}
             >
               {loading ? (

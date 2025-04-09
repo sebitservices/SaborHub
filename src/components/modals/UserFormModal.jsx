@@ -7,7 +7,7 @@ import {
 } from "firebase/auth";
 import { db, auth } from "../../firebase/config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faSpinner, faCheck, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faSpinner, faCheck, faExclamationTriangle, faLock } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../context/AuthContext";
 
 const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
@@ -294,7 +294,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
           <h2 className="text-xl font-semibold text-gray-800">Autenticación Requerida</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-full p-1"
+            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full p-1"
           >
             <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
           </button>
@@ -323,7 +323,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                 type="email"
                 value={adminCredentials.email}
                 onChange={(e) => setAdminCredentials({...adminCredentials, email: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 required
               />
             </div>
@@ -336,7 +336,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                 type="password"
                 value={adminCredentials.password}
                 onChange={(e) => setAdminCredentials({...adminCredentials, password: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 required
               />
             </div>
@@ -353,7 +353,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 flex items-center justify-center min-w-[100px]"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 flex items-center justify-center min-w-[100px]"
               disabled={loading}
             >
               {loading ? (
@@ -384,7 +384,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
           <h2 className="text-xl font-semibold text-gray-800">Agregar Nuevo Usuario</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-full p-1"
+            className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full p-1"
             aria-label="Cerrar"
           >
             <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
@@ -421,7 +421,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                   name="nombre"
                   value={formData.nombre}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   required
                 />
               </div>
@@ -435,7 +435,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                   name="apellido"
                   value={formData.apellido}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   required
                 />
               </div>
@@ -450,7 +450,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 required
               />
             </div>
@@ -465,7 +465,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   required
                   minLength={6}
                 />
@@ -480,7 +480,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                   required
                 />
               </div>
@@ -494,7 +494,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                 name="rol"
                 value={formData.rol}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="administrador">Administrador</option>
                 <option value="cajero">Cajero</option>
@@ -511,7 +511,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                 name="estado"
                 value={formData.estado}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="activo">Activo</option>
                 <option value="inactivo">Inactivo</option>
@@ -533,7 +533,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                         name="dashboard"
                         checked={formData.permisos.dashboard}
                         onChange={handlePermissionChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="dashboard" className="ml-2 text-sm text-gray-700">Dashboard</label>
                     </div>
@@ -544,7 +544,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                         name="mesas"
                         checked={formData.permisos.mesas}
                         onChange={handlePermissionChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="mesas" className="ml-2 text-sm text-gray-700">Mesas</label>
                     </div>
@@ -555,7 +555,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                         name="pedidos"
                         checked={formData.permisos.pedidos}
                         onChange={handlePermissionChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="pedidos" className="ml-2 text-sm text-gray-700">Pedidos</label>
                     </div>
@@ -566,7 +566,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                         name="inventario"
                         checked={formData.permisos.inventario}
                         onChange={handlePermissionChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="inventario" className="ml-2 text-sm text-gray-700">Inventario</label>
                     </div>
@@ -577,7 +577,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                         name="menu"
                         checked={formData.permisos.menu}
                         onChange={handlePermissionChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="menu" className="ml-2 text-sm text-gray-700">Menú</label>
                     </div>
@@ -588,7 +588,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                         name="reportes"
                         checked={formData.permisos.reportes}
                         onChange={handlePermissionChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="reportes" className="ml-2 text-sm text-gray-700">Reportes</label>
                     </div>
@@ -599,7 +599,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
                         name="configuracion"
                         checked={formData.permisos.configuracion}
                         onChange={handlePermissionChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="configuracion" className="ml-2 text-sm text-gray-700">Configuración</label>
                     </div>
@@ -619,7 +619,7 @@ const UserFormModal = ({ isOpen, onClose, onUserAdded }) => {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 flex items-center justify-center min-w-[100px]"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 flex items-center justify-center min-w-[100px]"
                 disabled={loading || success}
               >
                 {loading ? (

@@ -9,8 +9,8 @@ const Clientes = () => {
           Bienvenido a la sección de reportes de clientes. Aquí podrás visualizar información sobre
           clientes frecuentes, patrones de consumo y preferencias de tus comensales.
         </p>
-        <div className="mt-8 p-8 bg-amber-50 rounded-lg border border-amber-200 text-center">
-          <p className="text-amber-700 text-lg font-medium">
+        <div className="mt-8 p-8 bg-emerald-50 rounded-lg border border-emerald-200 text-center">
+          <p className="text-emerald-700 text-lg font-medium">
             El módulo de reportes de clientes está en desarrollo.
           </p>
         </div>

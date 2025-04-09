@@ -340,7 +340,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
           <button
             className={`flex-1 py-3 px-4 text-center text-sm font-medium transition-colors ${
               activeTab === 'producto' 
-                ? 'text-amber-600 border-b-2 border-amber-500' 
+                ? 'text-emerald-600 border-b-2 border-emerald-500' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('producto')}
@@ -350,7 +350,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
           <button
             className={`flex-1 py-3 px-4 text-center text-sm font-medium transition-colors ${
               activeTab === 'modificadores' 
-                ? 'text-amber-600 border-b-2 border-amber-500' 
+                ? 'text-emerald-600 border-b-2 border-emerald-500' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('modificadores')}
@@ -381,7 +381,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                       name="nombre"
                       value={formData.nombre}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                       placeholder="Ej: Pizza Margherita"
                       required
                     />
@@ -401,7 +401,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                         name="precio"
                         value={formData.precio}
                         onChange={handleChange}
-                        className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                         placeholder="0"
                         inputMode="numeric"
                         required
@@ -420,7 +420,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                       name="tiempo_preparacion"
                       value={formData.tiempo_preparacion}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                       placeholder="Ej: 15"
                       inputMode="numeric"
                     />
@@ -436,7 +436,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                       name="alergenos"
                       value={formData.alergenos}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                       placeholder="Ej: Gluten, Lácteos, Frutos secos"
                     />
                   </div>
@@ -450,7 +450,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                         name="disponible"
                         checked={formData.disponible}
                         onChange={handleChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="disponible" className="block text-sm text-gray-700">
                         Disponible para ordenar
@@ -464,7 +464,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                         name="destacado"
                         checked={formData.destacado}
                         onChange={handleChange}
-                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       />
                       <label htmlFor="destacado" className="block text-sm text-gray-700">
                         Destacar en el menú
@@ -484,7 +484,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                       value={formData.descripcion}
                       onChange={handleChange}
                       rows="3"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                       placeholder="Breve descripción del producto..."
                     ></textarea>
                   </div>
@@ -528,7 +528,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                         type="file"
                         accept="image/*"
                         onChange={handleImageChange}
-                        className={`mt-3 px-3 py-2 w-full border border-gray-300 rounded-md text-sm ${imagePreview ? 'file:bg-amber-700 file:text-white' : 'file:bg-amber-600 file:text-white'} file:border-0 file:rounded file:px-3 file:py-1 file:mr-3 file:cursor-pointer focus:outline-none`}
+                        className={`mt-3 px-3 py-2 w-full border border-gray-300 rounded-md text-sm ${imagePreview ? 'file:bg-emerald-700 file:text-white' : 'file:bg-emerald-600 file:text-white'} file:border-0 file:rounded file:px-3 file:py-1 file:mr-3 file:cursor-pointer focus:outline-none`}
                       />
                     </div>
                   </div>
@@ -540,14 +540,14 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
                   disabled={loading}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 flex items-center space-x-2"
+                  className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                   disabled={loading || success}
                 >
                   {loading ? (
@@ -582,7 +582,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
               <button
                 type="button"
                 onClick={() => setActiveTab('producto')}
-                className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 focus:outline-none"
               >
                 Volver a detalles del producto
               </button>
