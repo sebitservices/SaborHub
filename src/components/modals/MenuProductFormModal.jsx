@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { addDoc, collection, doc, updateDoc, getDoc } from "firebase/firestore";
+import { addDoc, collection, doc, updateDoc, getDoc, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db, storage } from "../../firebase/config";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,7 +12,11 @@ import {
   faSave,
   faUpload,
   faImage,
-  faInfoCircle
+  faInfoCircle,
+  faPlus,
+  faTrash,
+  faSearch,
+  faUtensils
 } from "@fortawesome/free-solid-svg-icons";
 
 const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct = null, section }) => {
@@ -29,7 +33,8 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
     disponible: true,
     tiempo_preparacion: "",
     alergenos: "",
-    orden: 0
+    orden: 0,
+    receta: []
   });
   
   const [imagePreview, setImagePreview] = useState(null);
@@ -37,6 +42,21 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [modificadores, setModificadores] = useState([]);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [nuevoModificador, setNuevoModificador] = useState({
+    nombre: '',
+    tipo: 'single',
+    opciones: [],
+    required: false,
+    min_selections: 0,
+    max_selections: 1,
+    incluido_menu: true
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedIngrediente, setSelectedIngrediente] = useState(null);
   
   // Control de animación
   useEffect(() => {
@@ -62,7 +82,8 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
         disponible: editingProduct.disponible !== false, // Por defecto true, a menos que sea explícitamente false
         tiempo_preparacion: editingProduct.tiempo_preparacion?.toString() || "",
         alergenos: editingProduct.alergenos || "",
-        orden: editingProduct.orden || 0
+        orden: editingProduct.orden || 0,
+        receta: editingProduct.receta || []
       });
       
       // Si el producto tiene una imagen, mostrarla en la vista previa
@@ -70,6 +91,12 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
         setImagePreview(editingProduct.imagen_url);
       } else {
         setImagePreview(null);
+      }
+
+      if (editingProduct?.modificadores) {
+        setModificadores(editingProduct.modificadores);
+      } else {
+        setModificadores([]);
       }
     } else {
       // Resetear a la pestaña de producto al crear nuevo
@@ -86,9 +113,11 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
         disponible: true,
         tiempo_preparacion: "",
         alergenos: "",
-        orden: 0
+        orden: 0,
+        receta: []
       });
       setImagePreview(null);
+      setModificadores([]);
     }
     
     setError("");
@@ -192,9 +221,805 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
     }
   };
   
+  const handleAddModificador = () => {
+    if (!nuevoModificador.nombre) return;
+    
+    setModificadores([...modificadores, {
+      ...nuevoModificador,
+      id: Date.now().toString()
+    }]);
+    
+    setNuevoModificador({
+      nombre: '',
+      tipo: 'single',
+      opciones: [],
+      required: false,
+      min_selections: 0,
+      max_selections: 1,
+      incluido_menu: true
+    });
+  };
+
+  const handleAddOpcion = (modificadorId) => {
+    const nuevaOpcion = {
+      id: Date.now().toString(),
+      nombre: '',
+      precio_adicional: 0
+    };
+
+    setModificadores(modificadores.map(mod => 
+      mod.id === modificadorId 
+        ? { ...mod, opciones: [...mod.opciones, nuevaOpcion] }
+        : mod
+    ));
+  };
+
+  // Función para buscar ingredientes
+  const searchIngredientes = async (searchTerm) => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const inventarioRef = collection(db, 'inventario');
+      // Obtener todos los productos y filtrar localmente
+      const q = query(inventarioRef, limit(20));
+      const snapshot = await getDocs(q);
+      
+      const searchTermLower = searchTerm.toLowerCase();
+      const results = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .filter(item => 
+          item.nombre?.toLowerCase().includes(searchTermLower) ||
+          item.codigo?.toLowerCase().includes(searchTermLower)
+        )
+        .slice(0, 5); // Limitar a 5 resultados
+
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Error al buscar ingredientes:', error);
+      setError('Error al buscar ingredientes');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Función para agregar ingrediente a la receta
+  const handleAddIngrediente = (ingrediente) => {
+    const nuevoIngrediente = {
+      id: ingrediente.id,
+      nombre: ingrediente.nombre,
+      cantidad: 0,
+      unidad: ingrediente.unidad_medida || 'gr',
+      costo_unitario: ingrediente.precio_compra || 0,
+      stock_actual: ingrediente.stock_actual || 0
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      receta: [...prev.receta, nuevoIngrediente]
+    }));
+
+    // Limpiar búsqueda
+    setSearchTerm('');
+    setSearchResults([]);
+    setSelectedIngrediente(null);
+  };
+
+  // Función para eliminar ingrediente de la receta
+  const handleRemoveIngrediente = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      receta: prev.receta.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Función para actualizar cantidad o unidad de un ingrediente
+  const handleUpdateIngrediente = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      receta: prev.receta.map((ing, i) => 
+        i === index ? { ...ing, [field]: value } : ing
+      )
+    }));
+  };
+
+  // Función para agregar ingrediente a una opción de modificador
+  const handleAddIngredienteToOpcion = (modificadorId, opcionId, ingrediente) => {
+    const nuevoIngrediente = {
+      id: ingrediente.id,
+      nombre: ingrediente.nombre,
+      cantidad: 0,
+      unidad: ingrediente.unidad_medida || 'gr',
+      costo_unitario: ingrediente.precio_compra || 0,
+      stock_actual: ingrediente.stock_actual || 0
+    };
+
+    setModificadores(modificadores.map(mod => {
+      if (mod.id === modificadorId) {
+        return {
+          ...mod,
+          opciones: mod.opciones.map(opc => {
+            if (opc.id === opcionId) {
+              return {
+                ...opc,
+                ingredientes: [...(opc.ingredientes || []), nuevoIngrediente]
+              };
+            }
+            return opc;
+          })
+        };
+      }
+      return mod;
+    }));
+
+    // Limpiar búsqueda
+    setSearchTerm('');
+    setSearchResults([]);
+  };
+
+  // Función para eliminar ingrediente de una opción
+  const handleRemoveIngredienteFromOpcion = (modificadorId, opcionId, ingredienteIndex) => {
+    setModificadores(modificadores.map(mod => {
+      if (mod.id === modificadorId) {
+        return {
+          ...mod,
+          opciones: mod.opciones.map(opc => {
+            if (opc.id === opcionId) {
+              return {
+                ...opc,
+                ingredientes: opc.ingredientes.filter((_, index) => index !== ingredienteIndex)
+              };
+            }
+            return opc;
+          })
+        };
+      }
+      return mod;
+    }));
+  };
+
+  // Función para actualizar cantidad o unidad de un ingrediente en una opción
+  const handleUpdateIngredienteInOpcion = (modificadorId, opcionId, ingredienteIndex, field, value) => {
+    setModificadores(modificadores.map(mod => {
+      if (mod.id === modificadorId) {
+        return {
+          ...mod,
+          opciones: mod.opciones.map(opc => {
+            if (opc.id === opcionId) {
+              return {
+                ...opc,
+                ingredientes: opc.ingredientes.map((ing, index) => 
+                  index === ingredienteIndex ? { ...ing, [field]: value } : ing
+                )
+              };
+            }
+            return opc;
+          })
+        };
+      }
+      return mod;
+    }));
+  };
+
+  const renderModificadoresTab = () => (
+    <div className="space-y-6">
+      {/* Formulario para nuevo modificador */}
+      <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-lg font-medium text-gray-800">Agregar Modificador</h4>
+          <div className="flex items-center text-sm text-gray-500">
+            <FontAwesomeIcon icon={faInfoCircle} className="mr-2" />
+            <span>Personaliza las opciones del producto</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre del modificador
+              </label>
+              <input
+                type="text"
+                value={nuevoModificador.nombre}
+                onChange={(e) => setNuevoModificador({...nuevoModificador, nombre: e.target.value})}
+                placeholder="Ej: Tamaño, Extras, Toppings"
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tipo de selección
+              </label>
+              <select
+                value={nuevoModificador.tipo}
+                onChange={(e) => setNuevoModificador({...nuevoModificador, tipo: e.target.value})}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              >
+                <option value="single">Selección única</option>
+                <option value="multiple">Selección múltiple</option>
+              </select>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={nuevoModificador.required}
+                  onChange={(e) => setNuevoModificador({...nuevoModificador, required: e.target.checked})}
+                  className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="ml-2 text-sm text-gray-600">Obligatorio</span>
+              </label>
+
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={nuevoModificador.incluido_menu}
+                  onChange={(e) => setNuevoModificador({...nuevoModificador, incluido_menu: e.target.checked})}
+                  className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="ml-2 text-sm text-gray-600">Incluido en el menú</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {nuevoModificador.tipo === 'multiple' && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mínimo selecciones
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={nuevoModificador.min_selections}
+                    onChange={(e) => setNuevoModificador({
+                      ...nuevoModificador, 
+                      min_selections: parseInt(e.target.value) || 0
+                    })}
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Máximo selecciones
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={nuevoModificador.max_selections}
+                    onChange={(e) => setNuevoModificador({
+                      ...nuevoModificador, 
+                      max_selections: parseInt(e.target.value) || 1
+                    })}
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={nuevoModificador.required}
+                  onChange={(e) => setNuevoModificador({...nuevoModificador, required: e.target.checked})}
+                  className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="ml-2 text-sm text-gray-600">Obligatorio</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={handleAddModificador}
+                disabled={!nuevoModificador.nombre.trim()}
+                className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center"
+              >
+                <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                Agregar modificador
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Lista de modificadores */}
+      <div className="space-y-4">
+        {modificadores.map((modificador) => (
+          <div key={modificador.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h5 className="text-lg font-medium text-gray-800">{modificador.nombre}</h5>
+                <p className="text-sm text-gray-500">
+                  {modificador.tipo === 'single' ? 'Selección única' : 'Selección múltiple'}
+                  {modificador.required && ' • Obligatorio'}
+                  {modificador.tipo === 'multiple' && ` • Mín: ${modificador.min_selections}, Máx: ${modificador.max_selections}`}
+                  <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                    modificador.incluido_menu 
+                      ? 'bg-emerald-100 text-emerald-800' 
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {modificador.incluido_menu ? 'Incluido en menú' : 'Costo adicional'}
+                  </span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDeleteModificador(modificador.id)}
+                disabled={loadingDelete}
+                className={`p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 ${
+                  loadingDelete ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                title="Eliminar modificador"
+              >
+                {loadingDelete ? (
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                ) : (
+                  <FontAwesomeIcon icon={faTrash} />
+                )}
+              </button>
+            </div>
+            
+            {/* Opciones del modificador */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center mb-2">
+                <h6 className="text-sm font-medium text-gray-700">
+                  Opciones disponibles
+                  {!modificador.incluido_menu && (
+                    <span className="ml-2 text-xs text-amber-600">
+                      (Con costo adicional)
+                    </span>
+                  )}
+                </h6>
+                <button
+                  type="button"
+                  onClick={() => handleAddOpcion(modificador.id)}
+                  className="text-emerald-600 hover:text-emerald-700 text-sm flex items-center"
+                >
+                  <FontAwesomeIcon icon={faPlus} className="mr-1" />
+                  Agregar opción
+                </button>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                {modificador.opciones.map((opcion, index) => (
+                  <div key={opcion.id} className="flex gap-3 items-center bg-white p-3 rounded-md shadow-sm">
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={opcion.nombre}
+                        onChange={(e) => {
+                          const nuevasOpciones = [...modificador.opciones];
+                          nuevasOpciones[index].nombre = e.target.value;
+                          setModificadores(modificadores.map(mod =>
+                            mod.id === modificador.id
+                              ? { ...mod, opciones: nuevasOpciones }
+                              : mod
+                          ));
+                        }}
+                        placeholder="Nombre de la opción"
+                        className="w-full rounded-md border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                      />
+                    </div>
+                    {!modificador.incluido_menu && (
+                      <div className="w-36">
+                        <div className="relative rounded-md shadow-sm">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-500 sm:text-sm">$</span>
+                          </div>
+                          <input
+                            type="number"
+                            value={opcion.precio_adicional}
+                            onChange={(e) => {
+                              const nuevasOpciones = [...modificador.opciones];
+                              nuevasOpciones[index].precio_adicional = parseInt(e.target.value) || 0;
+                              setModificadores(modificadores.map(mod =>
+                                mod.id === modificador.id
+                                  ? { ...mod, opciones: nuevasOpciones }
+                                  : mod
+                              ));
+                            }}
+                            placeholder="Precio extra"
+                            className="w-full pl-7 rounded-md border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nuevasOpciones = modificador.opciones.filter((_, i) => i !== index);
+                        setModificadores(modificadores.map(mod =>
+                          mod.id === modificador.id
+                            ? { ...mod, opciones: nuevasOpciones }
+                            : mod
+                        ));
+                      }}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
+                      title="Eliminar opción"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </div>
+                ))}
+                
+                {modificador.opciones.length === 0 && (
+                  <div className="text-center py-4 text-gray-500 text-sm">
+                    No hay opciones agregadas
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {modificadores.length === 0 && (
+          <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <FontAwesomeIcon icon={faPlus} className="text-gray-400 text-3xl mb-2" />
+            <p className="text-gray-500">No hay modificadores agregados</p>
+            <p className="text-sm text-gray-400">Agrega modificadores para personalizar el producto</p>
+          </div>
+        )}
+      </div>
+
+      {/* Botones de acción */}
+      <div className="flex justify-end space-x-3 mt-8 pt-4 border-t">
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
+          disabled={loading}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          disabled={loading || success}
+        >
+          {loading ? (
+            <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
+          ) : success ? (
+            <FontAwesomeIcon icon={faCheck} className="mr-2" />
+          ) : (
+            <FontAwesomeIcon icon={faSave} className="mr-2" />
+          )}
+          <span>
+            {loading ? 'Guardando...' : success ? 'Guardado' : isEditing ? 'Actualizar' : 'Guardar'}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderRecetaTab = () => (
+    <div className="space-y-6">
+      {/* Sección de ingredientes del producto base */}
+      <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h4 className="text-lg font-medium text-gray-800">Ingredientes del Producto</h4>
+            <p className="text-sm text-gray-500">Agrega los ingredientes necesarios para preparar este producto</p>
+          </div>
+          <div className="flex items-center text-sm text-gray-500">
+            <FontAwesomeIcon icon={faUtensils} className="mr-2" />
+            <span>Receta base</span>
+          </div>
+        </div>
+
+        {/* Buscador de ingredientes */}
+        <div className="mb-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                searchIngredientes(e.target.value);
+              }}
+              placeholder="Buscar ingrediente..."
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+            {/* Resultados de búsqueda */}
+            {searchResults.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200">
+                {searchResults.map((ingrediente) => (
+                  <button
+                    key={ingrediente.id}
+                    onClick={() => handleAddIngrediente(ingrediente)}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between"
+                  >
+                    <div>
+                      <span className="font-medium">{ingrediente.nombre}</span>
+                      <span className="text-sm text-gray-500 ml-2">
+                        ({ingrediente.codigo || 'Sin código'})
+                      </span>
+                    </div>
+                    <div className="text-sm">
+                      <span className={`${
+                        ingrediente.stock_actual <= ingrediente.stock_minimo 
+                          ? 'text-red-600 font-semibold' 
+                          : 'text-gray-600'
+                      }`}>
+                        Stock: {ingrediente.stock_actual} {ingrediente.unidad_medida}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+            {isSearching && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <FontAwesomeIcon icon={faSpinner} className="animate-spin text-gray-400" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Lista de ingredientes agregados */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="mb-4">
+            <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-500 mb-2 px-4">
+              <div className="col-span-4">Ingrediente</div>
+              <div className="col-span-3">Cantidad</div>
+              <div className="col-span-3">Unidad</div>
+              <div className="col-span-2">Acciones</div>
+            </div>
+
+            {formData.receta.length > 0 ? (
+              <div className="space-y-2">
+                {formData.receta.map((ingrediente, index) => (
+                  <div key={index} className="grid grid-cols-12 gap-4 bg-white p-3 rounded-md items-center">
+                    <div className="col-span-4">
+                      {ingrediente.nombre}
+                    </div>
+                    <div className="col-span-3">
+                      <input
+                        type="number"
+                        min="0"
+                        value={ingrediente.cantidad}
+                        onChange={(e) => handleUpdateIngrediente(index, 'cantidad', parseFloat(e.target.value) || 0)}
+                        className="w-full rounded-md border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div className="col-span-3">
+                      <select
+                        value={ingrediente.unidad}
+                        onChange={(e) => handleUpdateIngrediente(index, 'unidad', e.target.value)}
+                        className="w-full rounded-md border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+                      >
+                        <option value="gr">Gramos</option>
+                        <option value="ml">Mililitros</option>
+                        <option value="unidad">Unidades</option>
+                        <option value="kg">Kilogramos</option>
+                        <option value="lt">Litros</option>
+                      </select>
+                    </div>
+                    <div className="col-span-2 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveIngrediente(index)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <FontAwesomeIcon icon={faUtensils} className="text-gray-400 text-3xl mb-2" />
+                <p className="text-gray-500">No hay ingredientes agregados</p>
+                <p className="text-sm text-gray-400">Busca y agrega los ingredientes necesarios</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Sección de ingredientes de modificadores */}
+      <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h4 className="text-lg font-medium text-gray-800">Ingredientes de Modificadores</h4>
+            <p className="text-sm text-gray-500">Gestiona los ingredientes de cada opción de modificador</p>
+          </div>
+        </div>
+
+        {modificadores.length > 0 ? (
+          <div className="space-y-4">
+            {modificadores.map((modificador) => (
+              <div key={modificador.id} className="border border-gray-200 rounded-lg p-4">
+                <h5 className="font-medium text-gray-700 mb-2">{modificador.nombre}</h5>
+                
+                {modificador.opciones.map((opcion) => (
+                  <div key={opcion.id} className="ml-4 mt-2 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h6 className="text-sm font-medium text-gray-600">{opcion.nombre}</h6>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Buscar ingrediente..."
+                          className="text-sm px-3 py-1 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                          value={searchTerm}
+                          onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            searchIngredientes(e.target.value);
+                          }}
+                        />
+                        {searchResults.length > 0 && (
+                          <div className="absolute z-10 w-64 right-0 mt-1 bg-white rounded-md shadow-lg border border-gray-200">
+                            {searchResults.map((ingrediente) => (
+                              <button
+                                key={ingrediente.id}
+                                onClick={() => handleAddIngredienteToOpcion(modificador.id, opcion.id, ingrediente)}
+                                className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                              >
+                                {ingrediente.nombre}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Lista de ingredientes de la opción */}
+                    {opcion.ingredientes && opcion.ingredientes.length > 0 ? (
+                      <div className="space-y-2">
+                        {opcion.ingredientes.map((ingrediente, index) => (
+                          <div key={index} className="grid grid-cols-12 gap-2 bg-white p-2 rounded-md items-center text-sm">
+                            <div className="col-span-4">
+                              {ingrediente.nombre}
+                            </div>
+                            <div className="col-span-3">
+                              <input
+                                type="number"
+                                min="0"
+                                value={ingrediente.cantidad}
+                                onChange={(e) => handleUpdateIngredienteInOpcion(
+                                  modificador.id,
+                                  opcion.id,
+                                  index,
+                                  'cantidad',
+                                  parseFloat(e.target.value) || 0
+                                )}
+                                className="w-full rounded-md border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+                              />
+                            </div>
+                            <div className="col-span-3">
+                              <select
+                                value={ingrediente.unidad}
+                                onChange={(e) => handleUpdateIngredienteInOpcion(
+                                  modificador.id,
+                                  opcion.id,
+                                  index,
+                                  'unidad',
+                                  e.target.value
+                                )}
+                                className="w-full rounded-md border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+                              >
+                                <option value="gr">Gramos</option>
+                                <option value="ml">Mililitros</option>
+                                <option value="unidad">Unidades</option>
+                                <option value="kg">Kilogramos</option>
+                                <option value="lt">Litros</option>
+                              </select>
+                            </div>
+                            <div className="col-span-2 flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveIngredienteFromOpcion(modificador.id, opcion.id, index)}
+                                className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
+                              >
+                                <FontAwesomeIcon icon={faTrash} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-gray-500 text-center py-2">
+                        Sin ingredientes configurados
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-6 bg-gray-50 rounded-lg">
+            <p className="text-gray-500">No hay modificadores agregados</p>
+            <p className="text-sm text-gray-400">Agrega modificadores en la pestaña correspondiente</p>
+          </div>
+        )}
+      </div>
+
+      {/* Botones de acción */}
+      <div className="flex justify-end space-x-3 mt-8 pt-4 border-t">
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-emerald-600 hover:text-emerald-900 px-4 py-2 border border-emerald-200 rounded-md"
+          disabled={loading}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          disabled={loading || success}
+        >
+          {loading ? (
+            <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
+          ) : success ? (
+            <FontAwesomeIcon icon={faCheck} className="mr-2" />
+          ) : (
+            <FontAwesomeIcon icon={faSave} className="mr-2" />
+          )}
+          <span>
+            {loading ? 'Guardando...' : success ? 'Guardado' : isEditing ? 'Actualizar' : 'Guardar'}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+
+  // Función para eliminar modificador
+  const handleDeleteModificador = async (modificadorId) => {
+    if (!editingProduct?.id) {
+      // Si es un producto nuevo, solo eliminamos del estado
+      setModificadores(modificadores.filter(m => m.id !== modificadorId));
+      return;
+    }
+
+    setLoadingDelete(true);
+    try {
+      // Actualizar el documento en Firestore
+      const productRef = doc(db, "menuSecciones", formData.categoria, "productos", editingProduct.id);
+      
+      // Obtener los modificadores actuales y filtrar el que queremos eliminar
+      const nuevosModificadores = modificadores.filter(m => m.id !== modificadorId);
+      
+      // Actualizar el documento con los nuevos modificadores
+      await updateDoc(productRef, {
+        modificadores: nuevosModificadores,
+        actualizado: new Date().toISOString(),
+        updated: new Date().toISOString()
+      });
+
+      // Actualizar el estado local
+      setModificadores(nuevosModificadores);
+      
+      // Mostrar mensaje de éxito temporal
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
+    } catch (error) {
+      console.error("Error al eliminar modificador:", error);
+      setError("Error al eliminar el modificador. Por favor, intenta de nuevo.");
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
+
   // Guardar producto
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     
     // Validación básica
     if (!formData.nombre.trim()) {
@@ -222,6 +1047,7 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
         ...formData,
         precio: parsePriceForSave(formData.precio),
         tiempo_preparacion: formData.tiempo_preparacion ? parseInt(formData.tiempo_preparacion) : null,
+        modificadores,  // Agregar modificadores al producto
         // Agregar campos con nombres en inglés para compatibilidad
         name: formData.nombre,
         price: parsePriceForSave(formData.precio),
@@ -356,6 +1182,16 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
             onClick={() => setActiveTab('modificadores')}
           >
             Modificadores
+          </button>
+          <button
+            className={`flex-1 py-3 px-4 text-center text-sm font-medium transition-colors ${
+              activeTab === 'receta' 
+                ? 'text-emerald-600 border-b-2 border-emerald-500' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('receta')}
+          >
+            Receta
           </button>
         </div>
 
@@ -563,30 +1399,10 @@ const MenuProductFormModal = ({ isOpen, onClose, onSaveProduct, editingProduct =
                 </button>
               </div>
             </form>
+          ) : activeTab === 'modificadores' ? (
+            renderModificadoresTab()
           ) : (
-            <div className="py-10 px-5 text-center">
-              <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 mb-4 inline-block mx-auto">
-                <FontAwesomeIcon icon={faInfoCircle} className="text-blue-500 text-4xl mb-4" />
-                <h3 className="text-xl font-semibold text-blue-800 mb-2">¡Próximamente!</h3>
-                <p className="text-blue-700 max-w-md mx-auto">
-                  Estamos desarrollando esta funcionalidad para permitirte gestionar modificadores
-                  y variantes para tus productos (ingredientes adicionales, tamaños, etc).
-                </p>
-              </div>
-              
-              <p className="text-gray-500 max-w-md mx-auto mb-6">
-                Los modificadores te permitirán ofrecer opciones personalizables a tus clientes,
-                como agregar ingredientes extras, cambiar el tamaño o elegir entre diferentes variantes.
-              </p>
-              
-              <button
-                type="button"
-                onClick={() => setActiveTab('producto')}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 focus:outline-none"
-              >
-                Volver a detalles del producto
-              </button>
-            </div>
+            renderRecetaTab()
           )}
         </div>
       </div>
