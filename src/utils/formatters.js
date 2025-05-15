@@ -61,3 +61,31 @@ export const parseChileanNumber = (str) => {
   const cleanStr = str.replace(/[$\.]/g, '');
   return parseInt(cleanStr, 10);
 };
+
+/**
+ * Formatea un número como moneda en pesos chilenos
+ * @param {number} amount - Cantidad a formatear
+ * @param {boolean} showDecimals - Si se deben mostrar decimales (opcional, por defecto false)
+ * @returns {string} Cantidad formateada como moneda
+ */
+export const formatCurrency = (amount, showDecimals = false) => {
+  try {
+    // Asegurarse de que amount sea un número
+    const numericAmount = Number(amount);
+    
+    if (isNaN(numericAmount)) {
+      console.warn('formatCurrency: valor no numérico proporcionado:', amount);
+      return '$0';
+    }
+
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
+      minimumFractionDigits: showDecimals ? 2 : 0,
+      maximumFractionDigits: showDecimals ? 2 : 0
+    }).format(numericAmount);
+  } catch (error) {
+    console.error('Error al formatear moneda:', error);
+    return '$0';
+  }
+};

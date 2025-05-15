@@ -577,7 +577,7 @@ const Configuracion = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="inline-block w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                  <span className="w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                     <FontAwesomeIcon icon={faCog} />
                   </span>
                   Información del Restaurante
@@ -591,7 +591,7 @@ const Configuracion = () => {
               
               <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="inline-block w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                  <span className="w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                     <FontAwesomeIcon icon={faCog} />
                   </span>
                   Configuración Fiscal
@@ -605,7 +605,7 @@ const Configuracion = () => {
               
               <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="inline-block w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                  <span className="w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                     <FontAwesomeIcon icon={faCog} />
                   </span>
                   Horarios de Atención
@@ -619,7 +619,7 @@ const Configuracion = () => {
               
               <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="inline-block w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                  <span className="w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                     <FontAwesomeIcon icon={faCog} />
                   </span>
                   Métodos de Pago
@@ -651,7 +651,7 @@ const Configuracion = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="inline-block w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                  <span className="w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                     <FontAwesomeIcon icon={faUtensils} />
                   </span>
                   Categorías
@@ -665,7 +665,7 @@ const Configuracion = () => {
               
               <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="inline-block w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                  <span className="w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                     <FontAwesomeIcon icon={faUtensils} />
                   </span>
                   Modificadores
@@ -679,7 +679,7 @@ const Configuracion = () => {
               
               <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="inline-block w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                  <span className="w-8 h-8 mr-3 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                     <FontAwesomeIcon icon={faUtensils} />
                   </span>
                   Impuestos

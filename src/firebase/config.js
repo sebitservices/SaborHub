@@ -19,9 +19,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 export const functions = getFunctions(app);
 
 // Si estás en desarrollo, conectar al emulador de funciones local (opcional)
@@ -29,5 +29,7 @@ if (process.env.NODE_ENV === 'development') {
   // Descomenta la siguiente línea si usas emuladores locales
   // connectFunctionsEmulator(functions, "localhost", 5001);
 }
+
+export { auth, db, storage };
 
 export default app;

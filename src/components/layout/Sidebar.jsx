@@ -405,8 +405,8 @@ const Sidebar = ({ isExpanded, toggleExpanded }) => {
       className={`
         fixed inset-y-0 left-0 transition-all duration-300 ease-in-out z-20
         ${isExpanded ? 'w-64' : 'w-20'}
-        bg-white text-gray-700 h-full flex flex-col shadow-xl
-        hidden md:flex
+        bg-white text-gray-700 h-full shadow-xl
+        hidden md:flex md:flex-col
       `}
     >
       {/* Sidebar header */}
