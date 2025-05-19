@@ -3,7 +3,7 @@ import { formatCurrency } from '../utils/formatters';
 import Layout from '../components/layout/Layout';
 import Modal from '../components/ui/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Transition } from '@headlessui/react';
+import { Transition, Dialog, Menu } from '@headlessui/react';
 import {
   faUtensils,
   faUsers,
@@ -25,15 +25,24 @@ import {
   faSearch,
   faMinus,
   faChevronRight,
-  faPrint
+  faPrint,
+  faCheck,
+  faCreditCard,
+  faComment,
+  faArrowRightArrowLeft,
+  faSitemap
 } from '@fortawesome/free-solid-svg-icons';
+// Importar los componentes drawer extraídos
+import ResumenDrawer from '../components/drawer/ResumenDrawer';
+import ProductosDrawer from '../components/drawer/ProductosDrawer';
+import ModificadoresDrawer from '../components/drawer/ModificadoresDrawer';
 import { crearArea, obtenerAreas, eliminarArea, crearMesa, obtenerMesas, eliminarMesa } from '../firebase/services';
 import { collection, getDocs, query, orderBy, doc, updateDoc, setDoc, getDoc, where, addDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { toast } from 'react-toastify';
-import { Menu } from '@headlessui/react';
 import { storage } from '../firebase/config';
 import { ref, getDownloadURL } from 'firebase/storage';
+import { auth } from '../firebase/config';
 
 const Mesas = () => {
   const [activeTab, setActiveTab] = useState('mesas');
@@ -75,6 +84,60 @@ const Mesas = () => {
   const [cantidadAQuitar, setCantidadAQuitar] = useState(1);
   const [productoAQuitar, setProductoAQuitar] = useState(null);
   const [pedidoTemporal, setPedidoTemporal] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Verificar si el usuario actual es administrador
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          setIsAdmin(false);
+          return;
+        }
+        
+        const userDoc = await getDoc(doc(db, 'usuarios', currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setIsAdmin(userData.rol?.toLowerCase() === 'administrador');
+        } else {
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error('Error al verificar rol del usuario:', error);
+        setIsAdmin(false);
+      }
+    };
+
+    checkUserRole();
+  }, []);
+  
+  // Redirigir a la pestaña de mesas si el usuario no es admin y está en la pestaña de gestión
+  useEffect(() => {
+    if (!isAdmin && activeTab === 'gestion') {
+      setActiveTab('mesas');
+    }
+  }, [isAdmin, activeTab]);
+
+  // Agregar al inicio del componente, junto con los otros useEffect
+  useEffect(() => {
+    const controlScroll = () => {
+      if (isResumenDrawerOpen || isDrawerOpen || showModifiersModal || showCancelarPedidoModal) {
+        document.body.style.overflow = 'hidden';
+        document.body.style.paddingRight = '15px'; // Compensar el scrollbar
+      } else {
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+      }
+    };
+
+    controlScroll();
+
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [isResumenDrawerOpen, isDrawerOpen, showModifiersModal, showCancelarPedidoModal]);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -1333,8 +1396,6 @@ const Mesas = () => {
       );
       const querySnapshot = await getDocs(q);
       
-      let pedidoRef;
-      let productosActualizados = [];
       const horaActual = new Date().toLocaleTimeString('es-ES', { 
         hour: '2-digit', 
         minute: '2-digit' 
@@ -1347,31 +1408,36 @@ const Mesas = () => {
         estado: 'pendiente'
       }));
 
+      const fechaActual = new Date().toISOString();
+
       if (!querySnapshot.empty) {
         // Actualizar pedido existente
-        pedidoRef = doc(db, 'pedidos', querySnapshot.docs[0].id);
+        const pedidoRef = doc(db, 'pedidos', querySnapshot.docs[0].id);
         const pedidoExistente = querySnapshot.docs[0].data();
-        productosActualizados = [...(pedidoExistente.productos || []), ...nuevosProductos];
+        const productosActualizados = [...(pedidoExistente.productos || []), ...nuevosProductos];
+        
+        await updateDoc(pedidoRef, {
+          productos: productosActualizados,
+          fechaActualizacion: fechaActual
+        });
       } else {
         // Crear nuevo pedido
-        pedidoRef = doc(pedidosRef);
-        productosActualizados = nuevosProductos;
+        const nuevoPedido = {
+          mesaId: mesaActiva.id,
+          estado: 'activo',
+          productos: nuevosProductos,
+          fechaCreacion: fechaActual,
+          fechaActualizacion: fechaActual
+        };
+        
+        await addDoc(pedidosRef, nuevoPedido);
       }
-
-      // Actualizar o crear el pedido
-      await setDoc(pedidoRef, {
-        mesaId: mesaActiva.id,
-        estado: 'activo',
-        productos: productosActualizados,
-        fechaCreacion: querySnapshot.empty ? new Date().toISOString() : undefined,
-        fechaActualizacion: new Date().toISOString()
-      }, { merge: true });
 
       // Actualizar estado de la mesa
       await actualizarEstadoMesa(mesaActiva.id, 'ocupada');
       
-      // Cargar el pedido actualizado en el drawer de resumen
-      const pedidoActualizado = await cargarPedidoActivo(mesaActiva.id);
+      // Cargar el pedido actualizado
+      await cargarPedidoActivo(mesaActiva.id);
       
       // Cerrar el drawer de productos y mostrar el de resumen
       setIsDrawerOpen(false);
@@ -1425,7 +1491,9 @@ const Mesas = () => {
 
   const cancelarPedido = async () => {
     try {
-      // Si hay un pedido activo, cancelarlo
+      if (!mesaActiva?.id) return;
+
+      // 1. Cancelar el pedido activo si existe
       if (pedidoActivo?.id) {
         const pedidoRef = doc(db, 'pedidos', pedidoActivo.id);
         await updateDoc(pedidoRef, {
@@ -1434,57 +1502,36 @@ const Mesas = () => {
         });
       }
 
-      // Actualizar estado de la mesa
-      if (mesaActiva?.id) {
-        const mesaRef = doc(db, 'mesas', mesaActiva.id);
-        
-        // Si la mesa está unida, liberar todas las mesas del grupo
-        const mesasUnidas = obtenerMesasUnidasInfo(mesaActiva.id);
-        if (mesasUnidas && mesasUnidas.length > 0) {
-          // Actualizar todas las mesas unidas
-          const actualizaciones = mesasUnidas.map(mesaId => 
-            updateDoc(doc(db, 'mesas', mesaId), {
-              estado: 'libre',
-              unidaCon: null
-            })
-          );
-          await Promise.all(actualizaciones);
-        } else {
-          // Actualizar solo la mesa actual
-          await updateDoc(mesaRef, {
-            estado: 'libre',
-            unidaCon: null
-          });
-        }
+      // 2. Actualizar la mesa en Firebase
+      const mesaRef = doc(db, 'mesas', mesaActiva.id);
+      await updateDoc(mesaRef, {
+        estado: 'libre'
+      });
 
-        // Actualizar estados locales
-        setMesas(prevMesas => 
-          prevMesas.map(mesa => {
-            if (mesa.id === mesaActiva.id || (mesasUnidas && mesasUnidas.includes(mesa.id))) {
-              return {
-                ...mesa,
-                estado: 'libre',
-                unidaCon: null
-              };
-            }
-            return mesa;
-          })
-        );
-      }
+      // 3. Actualizar el estado local de las mesas
+      setMesas(prevMesas => 
+        prevMesas.map(mesa => 
+          mesa.id === mesaActiva.id 
+            ? { ...mesa, estado: 'libre' }
+            : mesa
+        )
+      );
 
-      // Limpiar estados
+      // 4. Limpiar todos los estados
       setPedidoActivo(null);
       setMesaActiva(null);
+      setPedidoActual([]);
+      setPedidoTemporal([]);
       
-      // Cerrar modales y drawers
+      // 5. Cerrar todos los modales y drawers
       setShowCancelarPedidoModal(false);
       setIsResumenDrawerOpen(false);
       setIsDrawerOpen(false);
 
-      toast.success(pedidoActivo?.id ? 'Pedido cancelado correctamente' : 'Mesa liberada correctamente');
+      toast.success('Mesa liberada correctamente');
     } catch (error) {
       console.error('Error al cancelar pedido:', error);
-      toast.error('Error al cancelar el pedido');
+      toast.error('Error al liberar la mesa');
     }
   };
 
@@ -1567,7 +1614,7 @@ const Mesas = () => {
     setShowProductMenu(true);
   };
 
-  // Función para iniciar el proceso de quitar productos
+  // Modificar la función iniciarQuitarProducto
   const iniciarQuitarProducto = (item) => {
     setShowProductMenu(false);
     if (item.cantidad > 1) {
@@ -1653,6 +1700,16 @@ const Mesas = () => {
                 ))}
               </ul>
             )}
+            {/* Mostrar comentario si existe */}
+            {item.comentario && (
+              <div className="ml-8 mt-1 bg-amber-50 border border-amber-200 rounded-md px-3 py-1.5">
+                <div className="flex items-center text-amber-700">
+                  <FontAwesomeIcon icon={faComment} className="mr-2 h-3 w-3" />
+                  <span className="text-xs font-medium">Nota para cocina:</span>
+                </div>
+                <p className="text-sm text-amber-800 mt-0.5">{item.comentario}</p>
+              </div>
+            )}
             <div className="flex items-center gap-2 ml-8 mt-1 text-sm text-gray-500">
               <span>{item.hora || '00:00'}</span>
               {item.cantidad > 1 && (
@@ -1663,9 +1720,9 @@ const Mesas = () => {
             </div>
           </div>
           <div className="text-right">
-            <span className="font-medium text-gray-900">
-              ${formatCurrency(item.precio * item.cantidad)}
-            </span>
+                                      <span className="font-medium text-gray-900">
+                            {formatCurrency(item.precio * item.cantidad)}
+                          </span>
           </div>
         </div>
       </div>
@@ -1681,222 +1738,63 @@ const Mesas = () => {
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+            className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center"
+            onClick={() => {
+              // Implementación futura para marcar como entregado
+              toast.info('Función de marcar como entregado será implementada próximamente');
+            }}
+          >
+            <FontAwesomeIcon icon={faCheck} className="mr-2 w-4 h-4" />
+            Marcar como entregado
+          </button>
+          <button
+            className="w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center"
+            onClick={() => {
+              // Implementación futura para marcar como pagado
+              toast.info('Función de marcar como pagado será implementada próximamente');
+            }}
+          >
+            <FontAwesomeIcon icon={faCreditCard} className="mr-2 w-4 h-4" />
+            Marcar como pagado
+          </button>
+          
+          {/* Nueva opción: Transferir a otra mesa */}
+          <button
+            className="w-full px-4 py-2 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center"
+            onClick={() => {
+              // Implementación futura para transferir a otra mesa
+              toast.info('Función de transferir a otra mesa será implementada próximamente');
+            }}
+          >
+            <FontAwesomeIcon icon={faArrowRightArrowLeft} className="mr-2 w-4 h-4" />
+            Transferir a otra mesa
+          </button>
+          
+          {/* Nueva opción: Separar ítems (solo si hay más de 1) */}
+          {item.cantidad > 1 && (
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-purple-600 hover:bg-purple-50 flex items-center"
+              onClick={() => {
+                // Implementación futura para separar ítems
+                toast.info('Función de separar ítems será implementada próximamente');
+              }}
+            >
+              <FontAwesomeIcon icon={faSitemap} className="mr-2 w-4 h-4" />
+              Separar ítems
+            </button>
+          )}
+          
+          <div className="border-t border-gray-100 my-1"></div>
+          <button
+            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center"
             onClick={() => iniciarQuitarProducto(item)}
           >
+            <FontAwesomeIcon icon={faTimes} className="mr-2 w-4 h-4" />
             Quitar del pedido
           </button>
         </div>
       )}
     </div>
-  );
-
-  // Modificar el ResumenDrawer
-  const ResumenDrawer = () => (
-    <Transition.Root show={isResumenDrawerOpen} as={Fragment}>
-      <div className="fixed inset-0 overflow-hidden z-50">
-        <div className="absolute inset-0 overflow-hidden">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-in-out duration-500"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in-out duration-500"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div 
-              className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
-              onClick={() => {
-                setShowProductMenu(false);
-                cerrarResumenDrawer();
-              }}
-            />
-          </Transition.Child>
-
-          <section className="absolute inset-y-0 right-0 max-w-full flex">
-            <Transition.Child
-              as={Fragment}
-              enter="transform transition ease-in-out duration-500"
-              enterFrom="translate-x-full"
-              enterTo="translate-x-0"
-              leave="transform transition ease-in-out duration-500"
-              leaveFrom="translate-x-0"
-              leaveTo="translate-x-full"
-            >
-              <div className="relative w-screen max-w-md">
-                <div className="h-full flex flex-col bg-white shadow-xl overflow-y-scroll">
-                  {/* Header Principal */}
-                  <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
-                    <div className="flex items-center justify-between px-4 py-3">
-                      <h2 className="text-lg font-semibold text-gray-900">
-                        Mesa {mesaActiva?.numero}
-                      </h2>
-                      <div className="flex items-center gap-4">
-                        <button
-                          type="button"
-                          className="text-red-400 hover:text-red-500"
-                          onClick={() => setShowCancelarPedidoModal(true)}
-                        >
-                          <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Subheader con emoji y botón de agregar */}
-                  <div className="px-4 py-3 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-lg">
-                        <span className="mr-2">🍽️</span>
-                        <span>Mesa {mesaActiva?.numero}</span>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setIsResumenDrawerOpen(false);
-                          setIsDrawerOpen(true);
-                        }}
-                        className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors flex items-center gap-2"
-                      >
-                        <FontAwesomeIcon icon={faPlus} className="h-3 w-3" />
-                        <span>Agregar productos</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Estado de Orden */}
-                  <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600">
-                        {pedidoActivo?.productos?.length > 0 ? 'Resumen del pedido' : 'Mesa sin pedidos'}
-                      </span>
-                      <div className="flex items-center">
-                        <span className={`h-2 w-2 rounded-full ${pedidoActivo?.productos?.length > 0 ? 'bg-emerald-400' : 'bg-gray-400'} mr-2`}></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lista de Productos o Mensaje de No Pedidos */}
-                  <div className="flex-1 overflow-y-auto">
-                    {pedidoActivo?.productos && pedidoActivo.productos.length > 0 ? (
-                      <div className="divide-y divide-gray-200">
-                        {pedidoActivo.productos.map((item, index) => (
-                          renderProductoResumen(item, index)
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
-                        <FontAwesomeIcon icon={faUtensils} className="h-12 w-12 mb-4" />
-                        <p className="text-center px-4">
-                          No hay productos en la mesa.
-                          {mesaActiva?.estado === 'ocupada' && (
-                            <span className="block mt-2 text-sm">
-                              Puedes agregar productos usando el botón superior o cerrar la mesa si fue abierta por error.
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Footer con Total */}
-                  {pedidoActivo?.productos?.length > 0 && (
-                    <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-gray-900 font-medium">Total del Pedido</span>
-                        <span className="text-lg font-semibold text-emerald-600">
-                          ${formatCurrency(
-                            pedidoActivo.productos.reduce(
-                              (sum, item) => sum + (item.precio * item.cantidad),
-                              0
-                            ) || 0
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Transition.Child>
-          </section>
-        </div>
-
-        {/* Modal para quitar productos */}
-        <Modal
-          isOpen={showQuitarModal}
-          onClose={() => setShowQuitarModal(false)}
-          title="Quitar productos del pedido"
-        >
-          <div className="p-4">
-            <p className="text-gray-600 mb-4">
-              ¿Cuántas unidades de "{productoAQuitar?.nombre}" deseas quitar?
-            </p>
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <button
-                onClick={() => setCantidadAQuitar(prev => Math.max(1, prev - 1))}
-                className="p-2 text-gray-600 hover:text-gray-800 bg-gray-100 rounded-full"
-              >
-                -
-              </button>
-              <span className="text-xl font-medium w-12 text-center">
-                {cantidadAQuitar}
-              </span>
-              <button
-                onClick={() => setCantidadAQuitar(prev => Math.min(productoAQuitar?.cantidad || 1, prev + 1))}
-                className="p-2 text-gray-600 hover:text-gray-800 bg-gray-100 rounded-full"
-              >
-                +
-              </button>
-            </div>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowQuitarModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => quitarProductoDelPedido(productoAQuitar, cantidadAQuitar)}
-                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
-              >
-                Quitar productos
-              </button>
-            </div>
-          </div>
-        </Modal>
-
-        {/* Modal de Cancelar Pedido */}
-        <Modal
-          isOpen={showCancelarPedidoModal}
-          onClose={() => setShowCancelarPedidoModal(false)}
-          title="Cancelar Mesa"
-        >
-          <div className="p-4">
-            <p className="text-gray-600 mb-4">
-              {pedidoActivo?.productos?.length > 0 
-                ? "¿Estás seguro de que deseas cancelar el pedido?"
-                : "¿Estás seguro de que deseas liberar esta mesa?"}
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowCancelarPedidoModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-              >
-                No, mantener
-              </button>
-              <button
-                onClick={cancelarPedido}
-                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
-              >
-                {pedidoActivo?.productos?.length > 0 
-                  ? "Sí, cancelar pedido"
-                  : "Sí, liberar mesa"}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      </div>
-    </Transition.Root>
   );
 
   const handleModifierChange = (modifierId, value) => {
@@ -1942,7 +1840,7 @@ const Mesas = () => {
   };
 
   // Función para agregar producto con modificadores
-  const addProductWithModifiers = () => {
+  const addProductWithModifiers = (comentario = '') => {
     if (!selectedProduct) return;
 
     // Crear una copia de los modificadores del producto con toda la información necesaria
@@ -1976,6 +1874,7 @@ const Mesas = () => {
       ...selectedProduct,
       modificadores: modificadoresCompletos,
       cantidad: modifierQuantity,
+      comentario: comentario.trim(),
       productKey: generateProductKey(selectedProduct.id, modificadoresCompletos)
     };
 
@@ -1987,7 +1886,14 @@ const Mesas = () => {
       if (existingItemIndex >= 0) {
         return prev.map((item, index) => 
           index === existingItemIndex
-            ? { ...item, cantidad: (item.cantidad || 1) + modifierQuantity }
+            ? { 
+                ...item, 
+                cantidad: (item.cantidad || 1) + modifierQuantity,
+                // Si ya había un comentario y se agrega uno nuevo, combinarlos
+                comentario: item.comentario && comentario.trim() 
+                  ? `${item.comentario}; ${comentario.trim()}`
+                  : (item.comentario || comentario.trim())
+              }
             : item
         );
       }
@@ -2003,8 +1909,8 @@ const Mesas = () => {
   };
 
   if (loading && !areas.length && !mesas.length) {
-    return (
-      <Layout>
+  return (
+    <Layout>
         <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
           <div className="flex items-center gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
@@ -2042,473 +1948,75 @@ const Mesas = () => {
                 <FontAwesomeIcon icon={faUtensils} className="mr-2" />
                 Vista de Mesas
               </button>
-              <button
-                onClick={() => setActiveTab('gestion')}
-                className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'gestion'
-                    ? 'border-emerald-500 text-emerald-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <FontAwesomeIcon icon={faCog} className="mr-2" />
-                Gestión de Mesas
-              </button>
+              
+              {isAdmin && (
+                <button
+                  onClick={() => setActiveTab('gestion')}
+                  className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === 'gestion'
+                      ? 'border-emerald-500 text-emerald-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faCog} className="mr-2" />
+                  Gestión de Mesas
+                </button>
+              )}
             </nav>
           </div>
         </div>
 
         {/* Contenido de las pestañas */}
-        {activeTab === 'mesas' ? renderMesasTab() : renderGestionTab()}
+        {activeTab === 'mesas' ? renderMesasTab() : (isAdmin && renderGestionTab())}
 
-        {/* Drawer para pedidos */}
-        <Transition.Root show={isDrawerOpen} as={Fragment}>
-          <div className="fixed inset-0 overflow-hidden z-50">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-in-out duration-500"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in-out duration-500"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-            </Transition.Child>
+        {/* Usar componentes de Drawer extraídos en lugar de implementaciones internas */}
+        <ProductosDrawer 
+          isDrawerOpen={isDrawerOpen}
+          cerrarDrawer={cerrarDrawer}
+          mesaActiva={mesaActiva}
+          areas={areas}
+          searchMenu={searchMenu}
+          setSearchMenu={setSearchMenu}
+          loadingMenu={loadingMenu}
+          filteredSections={filteredSections}
+          renderProductImage={renderProductImage}
+          startAddToOrder={startAddToOrder}
+          pedidoActual={pedidoActual}
+          formatCurrency={formatCurrency}
+          addToOrder={addToOrder}
+          removeFromOrder={removeFromOrder}
+          deleteFromOrder={deleteFromOrder}
+          confirmarPedido={confirmarPedido}
+        />
 
-            <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-              <Transition.Child
-                as={Fragment}
-                enter="transform transition ease-in-out duration-500"
-                enterFrom="translate-x-full"
-                enterTo="translate-x-0"
-                leave="transform transition ease-in-out duration-500"
-                leaveFrom="translate-x-0"
-                leaveTo="translate-x-full"
-              >
-                <div className="relative w-screen max-w-7xl">
-                  <div className="h-full flex flex-col bg-white shadow-xl">
-                    {/* Header */}
-                    <div className="px-6 py-5 bg-white border-b border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="flex flex-col">
-                            <h2 className="text-2xl font-semibold text-gray-900">
-                              Mesa {mesaActiva?.numero}
-                            </h2>
-                            <p className="text-sm text-gray-500 mt-1">
-                              {areas.find(a => a.id === mesaActiva?.area)?.nombre}
-                            </p>
-                          </div>
-                          <div className="h-8 w-0.5 bg-gray-200"></div>
-                          <div className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-                            Nuevos pedidos
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="text-gray-400 hover:text-gray-500 p-2 hover:bg-gray-100 rounded-full transition-colors"
-                          onClick={cerrarDrawer}
-                        >
-                          <FontAwesomeIcon icon={faTimes} className="h-6 w-6" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Contenido del Drawer */}
-                    <div className="flex-1 flex h-full">
-                      {/* Panel izquierdo - Menú */}
-                      <div className="flex-1 flex flex-col border-r border-gray-200">
-                        {/* Barra de búsqueda */}
-                        <div className="p-6 border-b border-gray-200 bg-white">
-                          <div className="relative max-w-lg mx-auto">
-                            <FontAwesomeIcon 
-                              icon={faSearch} 
-                              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                            />
-                            <input
-                              type="text"
-                              value={searchMenu}
-                              onChange={(e) => setSearchMenu(e.target.value)}
-                              placeholder="Buscar productos..."
-                              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-900 text-base"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Menú */}
-                        <div className="flex-1 overflow-y-auto bg-gray-50">
-                          {loadingMenu ? (
-                            <div className="flex justify-center items-center h-full">
-                              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
-                            </div>
-                          ) : (
-                            <div className="p-6">
-                              {filteredSections.map((section) => (
-                                <div key={section.id} className="mb-8">
-                                  <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                                    <span className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
-                                      <FontAwesomeIcon icon={faUtensils} className="text-emerald-600" />
-                                    </span>
-                                    {section.name}
-                                  </h3>
-                                  <div className="grid grid-cols-1 gap-4">
-                                    {section.products.map((product) => (
-                                      <div
-                                        key={product.id}
-                                        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow group p-4 flex items-start gap-4"
-                                      >
-                                        {/* Imagen del producto */}
-                                        <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                                          {renderProductImage(product)}
-                                        </div>
-
-                                        {/* Información del producto */}
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex justify-between items-start">
-                                            <div className="flex-1">
-                                              <h4 className="text-lg font-medium text-gray-900 group-hover:text-emerald-600 transition-colors">
-                                                {product.nombre}
-                                              </h4>
-                                              {product.descripcion && (
-                                                <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                                                  {product.descripcion}
-                                                </p>
-                                              )}
-                                            </div>
-                                            <div className="flex flex-col items-end ml-4">
-                                              <span className="text-lg font-semibold text-gray-900">
-                                                ${product.precio?.toLocaleString('es-CL')}
-                                              </span>
-                                              <button
-                                                onClick={() => startAddToOrder(product)}
-                                                className="mt-2 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors flex items-center justify-center font-medium text-sm"
-                                              >
-                                                <FontAwesomeIcon icon={faPlus} className="mr-1.5" />
-                                                Agregar
-                                              </button>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Panel derecho - Carrito */}
-                      <div className="w-[480px] flex flex-col bg-white">
-                        <div className="p-6 border-b border-gray-200 bg-white">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xl font-semibold text-gray-900">Pedido actual</h3>
-                            <span className="text-sm text-gray-500">{pedidoActual.length} items</span>
-                          </div>
-                        </div>
-                        
-                        {/* Lista de items en el carrito */}
-                        <div className="flex-1 overflow-y-auto">
-                          {pedidoActual.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-gray-500 p-6">
-                              <FontAwesomeIcon icon={faShoppingCart} className="h-12 w-12 mb-4" />
-                              <p className="text-lg font-medium">Tu carrito está vacío</p>
-                              <p className="text-sm mt-2 text-center">Agrega productos del menú para comenzar tu pedido</p>
-                            </div>
-                          ) : (
-                            <div className="divide-y divide-gray-200">
-                              {pedidoActual.map((item, index) => (
-                                <div key={`${item.id}-${JSON.stringify(item.modificadores)}`} 
-                                     className="p-4 hover:bg-gray-50 transition-colors">
-                                  <div className="flex items-start">
-                                    <div className="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 font-medium">
-                                      {index + 1}
-                                    </div>
-                                    <div className="ml-4 flex-1 min-w-0">
-                                      <div className="flex justify-between items-start">
-                                        <div className="flex-1">
-                                          <h4 className="text-base font-medium text-gray-900">{item.nombre}</h4>
-                                          <p className="text-sm text-gray-500 mt-1">Cantidad: {item.cantidad}</p>
-                                        </div>
-                                        <div className="flex items-center space-x-4">
-                                          <span className="text-base font-semibold text-gray-900">
-                                            {formatCurrency(item.precio * (item.cantidad || 1))}
-                                          </span>
-                                          <div className="flex items-center space-x-2">
-                                            <button
-                                              onClick={() => deleteFromOrder(item.productKey)}
-                                              className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                              title="Eliminar producto"
-                                            >
-                                              <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                              onClick={() => removeFromOrder(item.productKey)}
-                                              className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                              title="Reducir cantidad"
-                                            >
-                                              <FontAwesomeIcon icon={faMinus} className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                              onClick={() => addToOrder(item)}
-                                              className="p-1 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-full transition-colors"
-                                              title="Aumentar cantidad"
-                                            >
-                                              <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
-                                            </button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      
-                                      {/* Modificadores */}
-                                      {item.modificadores && Object.entries(item.modificadores).length > 0 && (
-                                        <div className="mt-3 pl-4 border-l-2 border-gray-100">
-                                          {Object.entries(item.modificadores).map(([modId, modificador]) => (
-                                            <div key={modId} className="mb-2">
-                                              <div className="flex items-center text-sm">
-                                                <FontAwesomeIcon icon={faChevronRight} className="h-3 w-3 text-emerald-400 mr-2" />
-                                                <span className="font-medium text-gray-700">{modificador.nombre}</span>
-                                              </div>
-                                              {modificador.tipo === 'multiple' ? (
-                                                Array.isArray(modificador.seleccion) && modificador.seleccion.map(opcion => (
-                                                  <div key={opcion.id} className="ml-5 flex items-center text-sm">
-                                                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2"></span>
-                                                    <span className="text-gray-600">{opcion.nombre}</span>
-                                                  </div>
-                                                ))
-                                              ) : (
-                                                <div className="ml-5 flex items-center text-sm">
-                                                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2"></span>
-                                                  <span className="text-gray-600">{modificador.seleccion.nombre}</span>
-                                                </div>
-                                              )}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Footer con totales */}
-                        <div className="border-t border-gray-200 p-6 bg-white">
-                          <div className="space-y-4">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">Anterior</span>
-                              <span className="text-gray-900 font-medium">{formatCurrency(0)}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">Agregado</span>
-                              <span className="text-gray-900 font-medium">
-                                {formatCurrency(
-                                  pedidoActual.reduce((sum, item) => sum + (item.precio * (item.cantidad || 1)), 0)
-                                )}
-                              </span>
-                            </div>
-                            <div className="pt-4 border-t border-gray-200">
-                              <div className="flex justify-between text-lg font-semibold">
-                                <span className="text-gray-900">Total</span>
-                                <span className="text-emerald-600">
-                                  {formatCurrency(
-                                    pedidoActual.reduce((sum, item) => sum + (item.precio * (item.cantidad || 1)), 0)
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            className="mt-6 w-full bg-emerald-600 text-white px-6 py-4 rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => {
-                              confirmarPedido();
-                              cerrarDrawer();
-                            }}
-                            disabled={pedidoActual.length === 0}
-                          >
-                            <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-                            Confirmar Pedido
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Transition.Child>
-            </div>
-          </div>
-        </Transition.Root>
-
-        {/* Drawer de Modificadores */}
-        <Transition.Root show={showModifiersModal} as={Fragment}>
-          <div className="fixed inset-0 overflow-hidden z-50">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-in-out duration-500"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in-out duration-500"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-            </Transition.Child>
-
-            <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-              <Transition.Child
-                as={Fragment}
-                enter="transform transition ease-in-out duration-500"
-                enterFrom="translate-x-full"
-                enterTo="translate-x-0"
-                leave="transform transition ease-in-out duration-500"
-                leaveFrom="translate-x-0"
-                leaveTo="translate-x-full"
-              >
-                <div className="relative w-screen max-w-md">
-                  <div className="h-full flex flex-col bg-white shadow-xl">
-                    {/* Header */}
-                    <div className="px-6 py-5 bg-white border-b border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h2 className="text-2xl font-semibold text-gray-900">
-                            {selectedProduct?.nombre}
-                          </h2>
-                          <div className="mt-2 flex items-center justify-between">
-                            <p className="text-sm text-gray-500">
-                              Selecciona las opciones para este producto
-                            </p>
-                            <div className="flex items-center space-x-3">
-                              <button
-                                onClick={() => setModifierQuantity(prev => Math.max(1, prev - 1))}
-                                className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                disabled={modifierQuantity <= 1}
-                              >
-                                <FontAwesomeIcon icon={faMinus} className="h-4 w-4" />
-                              </button>
-                              <span className="text-lg font-medium text-gray-900 w-8 text-center">
-                                {modifierQuantity}
-                              </span>
-                              <button
-                                onClick={() => setModifierQuantity(prev => prev + 1)}
-                                className="p-1 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-full transition-colors"
-                              >
-                                <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="text-gray-400 hover:text-gray-500 p-2 hover:bg-gray-100 rounded-full transition-colors"
-                          onClick={() => {
-                            setShowModifiersModal(false);
-                            setSelectedProduct(null);
-                            setSelectedModifiers({});
-                            setModifierQuantity(1);
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faTimes} className="h-6 w-6" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Contenido */}
-                    <div className="flex-1 overflow-y-auto">
-                      <div className="p-6 space-y-6">
-                        {selectedProduct?.modificadores?.map((modificador) => (
-                          <div key={modificador.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                              <h3 className="text-lg font-medium text-gray-900">{modificador.nombre}</h3>
-                              <p className="mt-1 text-sm text-gray-500">
-                                {modificador.tipo === 'multiple' ? 'Puedes seleccionar varias opciones' : 'Selecciona una opción'}
-                              </p>
-                            </div>
-                            <div className="divide-y divide-gray-200">
-                              {modificador.opciones.map((opcion) => (
-                                <label
-                                  key={opcion.id}
-                                  className="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                                >
-                                  <input
-                                    type={modificador.tipo === 'multiple' ? 'checkbox' : 'radio'}
-                                    name={`modificador-${modificador.id}`}
-                                    value={opcion.id}
-                                    checked={
-                                      modificador.tipo === 'multiple'
-                                        ? selectedModifiers[modificador.id]?.includes(opcion.id)
-                                        : selectedModifiers[modificador.id] === opcion.id
-                                    }
-                                    onChange={() => {
-                                      if (modificador.tipo === 'multiple') {
-                                        const currentSelections = selectedModifiers[modificador.id] || [];
-                                        const newSelections = currentSelections.includes(opcion.id)
-                                          ? currentSelections.filter(id => id !== opcion.id)
-                                          : [...currentSelections, opcion.id];
-                                        handleModifierChange(modificador.id, newSelections);
-                                      } else {
-                                        handleModifierChange(modificador.id, opcion.id);
-                                      }
-                                    }}
-                                    className={`h-4 w-4 ${
-                                      modificador.tipo === 'multiple'
-                                        ? 'rounded text-emerald-600 focus:ring-emerald-500'
-                                        : 'rounded-full text-emerald-600 focus:ring-emerald-500'
-                                    } border-gray-300`}
-                                  />
-                                  <div className="ml-3 flex flex-1 justify-between items-center">
-                                    <span className="text-sm font-medium text-gray-900">{opcion.nombre}</span>
-                                    {opcion.precio > 0 && (
-                                      <span className="text-sm font-medium text-gray-500">
-                                        + ${opcion.precio?.toLocaleString('es-CL')}
-                                      </span>
-                                    )}
-                                  </div>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="border-t border-gray-200 p-6">
-                      <div className="mb-4">
-                        <div className="flex justify-between items-center text-sm text-gray-500">
-                          <span>Precio unitario:</span>
-                          <span className="font-medium text-gray-900">
-                            ${selectedProduct?.precio?.toLocaleString('es-CL')}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center mt-2 text-sm text-gray-500">
-                          <span>Cantidad:</span>
-                          <span className="font-medium text-gray-900">{modifierQuantity}</span>
-                        </div>
-                        <div className="flex justify-between items-center mt-2 text-base font-semibold">
-                          <span>Total:</span>
-                          <span className="text-emerald-600">
-                            ${((selectedProduct?.precio || 0) * modifierQuantity).toLocaleString('es-CL')}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={addProductWithModifiers}
-                        className="w-full bg-emerald-600 text-white px-6 py-4 rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center font-semibold text-lg"
-                      >
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                        Agregar {modifierQuantity} al Pedido
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Transition.Child>
-            </div>
-          </div>
-        </Transition.Root>
+        <ModificadoresDrawer 
+          showModifiersModal={showModifiersModal}
+          selectedProduct={selectedProduct}
+          modifierQuantity={modifierQuantity}
+          setModifierQuantity={setModifierQuantity}
+          setShowModifiersModal={setShowModifiersModal}
+          setSelectedProduct={setSelectedProduct}
+          setSelectedModifiers={setSelectedModifiers}
+          selectedModifiers={selectedModifiers}
+          handleModifierChange={handleModifierChange}
+          addProductWithModifiers={addProductWithModifiers}
+        />
+        
+        <ResumenDrawer 
+          isResumenDrawerOpen={isResumenDrawerOpen}
+          cerrarResumenDrawer={cerrarResumenDrawer}
+          mesaActiva={mesaActiva}
+          pedidoActivo={pedidoActivo}
+          setIsResumenDrawerOpen={setIsResumenDrawerOpen}
+          setIsDrawerOpen={setIsDrawerOpen}
+          setShowCancelarPedidoModal={setShowCancelarPedidoModal}
+          handleProductClick={handleProductClick}
+          showProductMenu={showProductMenu}
+          productoAQuitar={productoAQuitar}
+          menuPosition={menuPosition}
+          iniciarQuitarProducto={iniciarQuitarProducto}
+          mesas={mesas} // Pasar la lista de mesas disponibles
+        />
 
         {/* Modal de confirmación para cancelar pedido */}
         <Modal
@@ -2541,8 +2049,91 @@ const Mesas = () => {
           </div>
         </Modal>
 
-        {/* Agregar ResumenDrawer aquí */}
-        <ResumenDrawer />
+        {/* Modal para quitar productos */}
+        <Transition appear show={showQuitarModal} as={Fragment}>
+          <div className="fixed inset-0 z-[100] overflow-y-auto">
+            <div className="min-h-screen px-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <div className="fixed inset-0 bg-black bg-opacity-30" />
+              </Transition.Child>
+
+              <span
+                className="inline-block h-screen align-middle"
+                aria-hidden="true"
+              >
+                &#8203;
+              </span>
+
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl z-[110]">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">
+                    Quitar productos del pedido
+                  </h3>
+
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-500">
+                      ¿Cuántas unidades de "{productoAQuitar?.nombre}" deseas quitar?
+                    </p>
+
+                    <div className="mt-6 flex items-center justify-center gap-6">
+                      <button
+                        onClick={() => setCantidadAQuitar(prev => Math.max(1, prev - 1))}
+                        className="p-2 text-gray-600 hover:text-gray-800 bg-gray-100 rounded-full"
+                      >
+                        <FontAwesomeIcon icon={faMinus} className="h-4 w-4" />
+                      </button>
+                      <span className="text-2xl font-semibold w-12 text-center">
+                        {cantidadAQuitar}
+                      </span>
+                      <button
+                        onClick={() => setCantidadAQuitar(prev => Math.min(productoAQuitar?.cantidad || 1, prev + 1))}
+                        className="p-2 text-gray-600 hover:text-gray-800 bg-gray-100 rounded-full"
+                      >
+                        <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                      onClick={() => setShowQuitarModal(false)}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+                      onClick={() => {
+                        quitarProductoDelPedido(productoAQuitar, cantidadAQuitar);
+                        setShowQuitarModal(false);
+                      }}
+                    >
+                      Quitar productos
+                    </button>
+                  </div>
+                </div>
+              </Transition.Child>
+            </div>
+          </div>
+        </Transition>
       </div>
     </Layout>
   );

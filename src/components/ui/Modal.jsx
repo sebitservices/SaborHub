@@ -1,12 +1,12 @@
 import { Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { Transition } from '@headlessui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <div className="relative z-[100]">
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -16,7 +16,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="fixed inset-0 bg-black bg-opacity-25" onClick={onClose} />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -30,11 +30,8 @@ const Modal = ({ isOpen, onClose, title, children }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title
-                  as="div"
-                  className="flex items-center justify-between mb-4"
-                >
+              <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all z-[100]">
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium leading-6 text-gray-900">
                     {title}
                   </h3>
@@ -44,13 +41,13 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                   >
                     <FontAwesomeIcon icon={faTimes} />
                   </button>
-                </Dialog.Title>
+                </div>
                 {children}
-              </Dialog.Panel>
+              </div>
             </Transition.Child>
           </div>
         </div>
-      </Dialog>
+      </div>
     </Transition>
   );
 };
